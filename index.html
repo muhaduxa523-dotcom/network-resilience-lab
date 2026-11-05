@@ -1625,6 +1625,121 @@
       font-weight: 700;
     }
 
+    .guide-dialog {
+      width: min(1120px, calc(100vw - 28px));
+    }
+
+    .guide-dialog .dialog-header {
+      cursor: default;
+    }
+
+    .guide-dialog .dialog-body {
+      display: grid;
+      gap: 0;
+    }
+
+    .guide-intro {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(250px, 0.7fr);
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .guide-lead {
+      margin: 0;
+      padding: 15px 16px;
+      color: var(--ink-2);
+      background: var(--surface-soft);
+      border-radius: 12px;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .guide-lead strong {
+      color: var(--ink);
+    }
+
+    .guide-rule-list {
+      display: grid;
+      margin: 0;
+      padding: 12px 15px;
+      gap: 7px;
+      color: var(--ink-2);
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      list-style: none;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .guide-rule-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .guide-rule-list b {
+      display: inline-grid;
+      width: 19px;
+      height: 19px;
+      flex: 0 0 auto;
+      place-items: center;
+      color: #fff;
+      background: var(--ink);
+      border-radius: 50%;
+      font-size: 9px;
+    }
+
+    .guide-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+
+    .guide-card {
+      margin: 0;
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    .guide-card.is-wide {
+      grid-column: 1 / -1;
+    }
+
+    .guide-card img {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #fff;
+    }
+
+    .guide-card figcaption {
+      padding: 11px 14px 13px;
+      border-top: 1px solid var(--line);
+    }
+
+    .guide-card figcaption strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--ink);
+      font-size: 12px;
+    }
+
+    .guide-card figcaption span {
+      display: block;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.55;
+    }
+
+    .guide-dialog .dialog-footer {
+      justify-content: flex-end;
+    }
+
     .dialog-shell {
       display: flex;
       max-height: calc(100vh - 34px);
@@ -2052,6 +2167,15 @@
         grid-template-columns: 1fr;
       }
 
+      .guide-intro,
+      .guide-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .guide-card.is-wide {
+        grid-column: auto;
+      }
+
       .experiment-item-actions {
         flex-wrap: wrap;
       }
@@ -2205,6 +2329,13 @@
           <path d="M4 7.5V5.8A1.8 1.8 0 0 1 5.8 4h4.1l1.5 1.8H18a2 2 0 0 1 2 2v1.7"></path>
         </svg>
         实验库
+      </button>
+      <button class="btn" id="researchGuideButton" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+          <path d="M4.5 5.5A2.5 2.5 0 0 1 7 3h4.5v16H7a2.5 2.5 0 0 0-2.5 2Z"></path>
+          <path d="M19.5 5.5A2.5 2.5 0 0 0 17 3h-4.5v16H17a2.5 2.5 0 0 1 2.5 2Z"></path>
+        </svg>
+        原理解读
       </button>
       <button class="btn" id="editTopologyButton" type="button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
@@ -2612,6 +2743,66 @@
       <footer class="dialog-footer experiment-dialog-footer">
         <button class="btn" id="exportBackupButton" type="button">导出完整备份</button>
         <button class="btn" id="closeExperimentFooterButton" type="button">关闭</button>
+      </footer>
+    </div>
+  </dialog>
+
+  <dialog class="topology-dialog guide-dialog" id="researchGuideDialog" aria-labelledby="researchGuideTitle">
+    <div class="dialog-shell">
+      <header class="dialog-header">
+        <div>
+          <h2 id="researchGuideTitle">原理解读</h2>
+          <p>故障如何改变传播通道，以及为什么最终会得到 SSC 或非 SSC 的结论。</p>
+        </div>
+        <button class="dialog-close" id="closeResearchGuideButton" type="button" aria-label="关闭原理解读">×</button>
+      </header>
+
+      <div class="dialog-body">
+        <section class="guide-intro" aria-label="零强制判定摘要">
+          <p class="guide-lead">
+            领导者先被染黑；如果一个黑节点<strong>只有一个白色后继</strong>，且连接可靠，该后继就会被强制染色。重复这一过程，直到不再出现新的黑色节点。
+          </p>
+          <ul class="guide-rule-list">
+            <li><b>1</b><span>不确定边计入白色后继数量，但不能承担染色。</span></li>
+            <li><b>2</b><span>全部现存节点都被覆盖，才称为具有强结构能控性。</span></li>
+            <li><b>3</b><span>全部节点被移除时网络完全失效，不判定为 SSC。</span></li>
+          </ul>
+        </section>
+
+        <div class="guide-grid">
+          <figure class="guide-card is-wide">
+            <img src="assets/analysis-workflow.svg" alt="故障集合经过故障后网络、零强制传播，最终进行 SSC 判定的四步流程">
+            <figcaption>
+              <strong>从故障注入到控制判定</strong>
+              <span>展示一次分析中四个步骤之间的因果关系。</span>
+            </figcaption>
+          </figure>
+          <figure class="guide-card is-wide">
+            <img src="assets/four-fault-modes.svg" alt="边移除、节点移除、边不确定和节点不确定四种故障模式的图示">
+            <figcaption>
+              <strong>四类故障模式</strong>
+              <span>统一区分结构删除和连接不确定性，避免把不同故障机制混为一谈。</span>
+            </figcaption>
+          </figure>
+          <figure class="guide-card">
+            <img src="assets/zero-forcing.svg" alt="领导者初始染色、第一次强制和收敛状态的零强制传播图示">
+            <figcaption>
+              <strong>零强制传播规则</strong>
+              <span>由初始领导者开始，沿唯一且可靠的白色后继方向逐层染色。</span>
+            </figcaption>
+          </figure>
+          <figure class="guide-card">
+            <img src="assets/resilience-threshold.svg" alt="统一韧性指标、耐久区和临界故障规模的关系图">
+            <figcaption>
+              <strong>统一韧性指标</strong>
+              <span>ρ 是可承受的最大故障规模，ρ + 1 是首次可能失去 SSC 的临界规模。</span>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <footer class="dialog-footer">
+        <button class="btn btn-primary" id="closeResearchGuideFooterButton" type="button">返回实验台</button>
       </footer>
     </div>
   </dialog>
@@ -3038,6 +3229,10 @@
     const topologyDialog = document.getElementById("topologyDialog");
     const topologyDialogHeader = topologyDialog.querySelector(".dialog-header");
     const editTopologyButton = document.getElementById("editTopologyButton");
+    const researchGuideButton = document.getElementById("researchGuideButton");
+    const researchGuideDialog = document.getElementById("researchGuideDialog");
+    const closeResearchGuideButton = document.getElementById("closeResearchGuideButton");
+    const closeResearchGuideFooterButton = document.getElementById("closeResearchGuideFooterButton");
     const experimentLibraryButton = document.getElementById("experimentLibraryButton");
     const experimentDialog = document.getElementById("experimentDialog");
     const closeExperimentButton = document.getElementById("closeExperimentButton");
@@ -5076,6 +5271,18 @@
       showToast("已回到播放前");
     });
     replayButton.addEventListener("click", startSimulation);
+    researchGuideButton.addEventListener("click", () => {
+      if (typeof researchGuideDialog.showModal === "function") {
+        researchGuideDialog.showModal();
+      } else {
+        researchGuideDialog.setAttribute("open", "");
+      }
+    });
+    closeResearchGuideButton.addEventListener("click", () => researchGuideDialog.close());
+    closeResearchGuideFooterButton.addEventListener("click", () => researchGuideDialog.close());
+    researchGuideDialog.addEventListener("click", (event) => {
+      if (event.target === researchGuideDialog) researchGuideDialog.close();
+    });
     experimentLibraryButton.addEventListener("click", openExperimentLibrary);
     closeExperimentButton.addEventListener("click", () => experimentDialog.close());
     closeExperimentFooterButton.addEventListener("click", () => experimentDialog.close());
