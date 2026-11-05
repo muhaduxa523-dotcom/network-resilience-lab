@@ -1419,102 +1419,6 @@
       transition: width 350ms ease;
     }
 
-    .algebraic-row {
-      display: grid;
-      margin-top: 13px;
-      padding-top: 13px;
-      grid-template-columns: minmax(112px, auto) minmax(0, 1fr);
-      align-items: center;
-      gap: 14px;
-      border-top: 1px solid var(--line);
-    }
-
-    .algebraic-main {
-      display: grid;
-      grid-template-columns: auto minmax(0, 1fr);
-      align-items: end;
-      column-gap: 7px;
-    }
-
-    .algebraic-main > span {
-      grid-column: 1 / -1;
-      margin-bottom: 4px;
-      color: var(--muted);
-      font-size: 10px;
-      font-weight: 600;
-    }
-
-    .algebraic-main strong {
-      color: var(--ink);
-      font-family: var(--font-numeric);
-      font-size: 25px;
-      font-weight: 650;
-      font-variant-numeric: tabular-nums;
-      line-height: 1;
-      letter-spacing: -0.035em;
-    }
-
-    .algebraic-main small {
-      padding-bottom: 2px;
-      color: var(--muted);
-      font-size: 10px;
-      font-weight: 600;
-      white-space: nowrap;
-    }
-
-    .algebraic-detail {
-      min-width: 0;
-      padding-left: 13px;
-      border-left: 1px solid var(--line);
-    }
-
-    .algebraic-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      color: var(--muted);
-      font-size: 10px;
-      font-weight: 700;
-    }
-
-    .algebraic-status::before {
-      width: 7px;
-      height: 7px;
-      flex: 0 0 auto;
-      content: "";
-      background: var(--line-strong);
-      border-radius: 50%;
-    }
-
-    .algebraic-row.is-connected .algebraic-status {
-      color: var(--ink-2);
-    }
-
-    .algebraic-row.is-connected .algebraic-status::before {
-      background: var(--ink-2);
-    }
-
-    .algebraic-row.is-disconnected .algebraic-status {
-      color: var(--red);
-    }
-
-    .algebraic-row.is-disconnected .algebraic-status::before {
-      background: var(--red);
-    }
-
-    .algebraic-detail p {
-      margin: 5px 0 0;
-      color: var(--muted);
-      font-size: 10px;
-      line-height: 1.5;
-    }
-
-    .algebraic-detail strong {
-      color: var(--ink-2);
-      font-weight: 700;
-      font-variant-numeric: tabular-nums;
-    }
-
     .set-list {
       display: grid;
       gap: 8px;
@@ -2665,17 +2569,6 @@
             <strong id="coverageText">43%</strong>
           </div>
 
-          <div class="algebraic-row" id="algebraicRow">
-            <div class="algebraic-main">
-              <span>结构连通裕度</span>
-              <strong id="algebraicValue">—</strong>
-              <small>λ₂(G↔)</small>
-            </div>
-            <div class="algebraic-detail">
-              <span class="algebraic-status" id="algebraicStatus">等待播放</span>
-              <p id="algebraicDetail">正在计算故障前结构连通裕度。</p>
-            </div>
-          </div>
         </section>
 
         <section class="analysis-section" aria-label="故障集合与派生集合">
@@ -2904,13 +2797,6 @@
             <figcaption>
               <strong>统一韧性指标</strong>
               <span>ρ 是可承受的最大故障规模，ρ + 1 是首次可能失去 SSC 的临界规模。</span>
-            </figcaption>
-          </figure>
-          <figure class="guide-card is-wide">
-            <img src="assets/algebraic-connectivity.svg" alt="有向网络经过无向投影和拉普拉斯矩阵，得到代数连通度的图示">
-            <figcaption>
-              <strong>代数连通度作为结构连通裕度</strong>
-              <span>将可靠有向边投影为无向图，取拉普拉斯矩阵第二小特征值；它补充描述连通紧密程度，不替代 SSC。</span>
             </figcaption>
           </figure>
         </div>
@@ -3337,10 +3223,6 @@
     const coverageText = document.getElementById("coverageText");
     const coverageBar = document.getElementById("coverageBar");
     const coverageTrack = coverageBar.closest(".coverage-track");
-    const algebraicRow = document.getElementById("algebraicRow");
-    const algebraicValue = document.getElementById("algebraicValue");
-    const algebraicStatus = document.getElementById("algebraicStatus");
-    const algebraicDetail = document.getElementById("algebraicDetail");
     const faultSetLabel = document.getElementById("faultSetLabel");
     const faultSetText = document.getElementById("faultSetText");
     const derivedSetText = document.getElementById("derivedSetText");
@@ -4064,135 +3946,6 @@
       };
 
       return result;
-    }
-
-    function symmetricEigenvalues(matrix) {
-      const size = matrix.length;
-      const values = matrix.map((row) => [...row]);
-      const maxIterations = Math.max(1, size * size * 80);
-
-      for (let iteration = 0; iteration < maxIterations; iteration++) {
-        let pivotRow = 0;
-        let pivotColumn = 1;
-        let largestOffDiagonal = 0;
-        for (let row = 0; row < size; row++) {
-          for (let column = row + 1; column < size; column++) {
-            const magnitude = Math.abs(values[row][column]);
-            if (magnitude > largestOffDiagonal) {
-              largestOffDiagonal = magnitude;
-              pivotRow = row;
-              pivotColumn = column;
-            }
-          }
-        }
-
-        if (largestOffDiagonal < 1e-11) break;
-
-        const row = pivotRow;
-        const column = pivotColumn;
-        const angle = 0.5 * Math.atan2(
-          2 * values[row][column],
-          values[column][column] - values[row][row]
-        );
-        const cosine = Math.cos(angle);
-        const sine = Math.sin(angle);
-        const oldRowDiagonal = values[row][row];
-        const oldColumnDiagonal = values[column][column];
-        const oldOffDiagonal = values[row][column];
-
-        for (let index = 0; index < size; index++) {
-          if (index === row || index === column) continue;
-          const oldRowValue = values[index][row];
-          const oldColumnValue = values[index][column];
-          values[index][row] = cosine * oldRowValue - sine * oldColumnValue;
-          values[row][index] = values[index][row];
-          values[index][column] = sine * oldRowValue + cosine * oldColumnValue;
-          values[column][index] = values[index][column];
-        }
-
-        values[row][row] = cosine * cosine * oldRowDiagonal
-          - 2 * sine * cosine * oldOffDiagonal
-          + sine * sine * oldColumnDiagonal;
-        values[column][column] = sine * sine * oldRowDiagonal
-          + 2 * sine * cosine * oldOffDiagonal
-          + cosine * cosine * oldColumnDiagonal;
-        values[row][column] = 0;
-        values[column][row] = 0;
-      }
-
-      return Array.from({ length: size }, (_, index) => values[index][index])
-        .sort((left, right) => left - right);
-    }
-
-    function computeAlgebraicConnectivity(mode = null, selected = new Set()) {
-      const selectedNodes = mode === "node" || mode === "nu"
-        ? new Set([...selected].map(Number))
-        : new Set();
-      const removedNodes = mode === "node" ? selectedNodes : new Set();
-      const presentNodes = nodes.filter((node) => !removedNodes.has(node.id));
-
-      if (presentNodes.length < 2) {
-        return {
-          value: null,
-          connected: false,
-          insufficientNodes: true,
-          presentCount: presentNodes.length
-        };
-      }
-
-      const indexByNode = new Map(presentNodes.map((node, index) => [node.id, index]));
-      const adjacency = Array.from(
-        { length: presentNodes.length },
-        () => Array(presentNodes.length).fill(0)
-      );
-
-      edges.forEach((edge) => {
-        if (mode === "edge" && selected.has(edge.id)) return;
-        if (mode === "eu" && selected.has(edge.id)) return;
-        if ((mode === "node" || mode === "nu") && selectedNodes.has(edge.from)) return;
-        const fromIndex = indexByNode.get(edge.from);
-        const toIndex = indexByNode.get(edge.to);
-        if (fromIndex == null || toIndex == null || fromIndex === toIndex) return;
-        const weight = Math.max(0, Number(edge.weight ?? 1));
-        if (!Number.isFinite(weight) || weight === 0) return;
-        adjacency[fromIndex][toIndex] = Math.max(adjacency[fromIndex][toIndex], weight);
-        adjacency[toIndex][fromIndex] = Math.max(adjacency[toIndex][fromIndex], weight);
-      });
-
-      const visited = new Set([0]);
-      const queue = [0];
-      while (queue.length) {
-        const current = queue.shift();
-        for (let next = 0; next < presentNodes.length; next++) {
-          if (adjacency[current][next] <= 0 || visited.has(next)) continue;
-          visited.add(next);
-          queue.push(next);
-        }
-      }
-      if (visited.size !== presentNodes.length) {
-        return {
-          value: 0,
-          connected: false,
-          insufficientNodes: false,
-          presentCount: presentNodes.length
-        };
-      }
-
-      const laplacian = adjacency.map((row, rowIndex) => (
-        row.map((weight, columnIndex) => (
-          rowIndex === columnIndex
-            ? row.reduce((sum, value) => sum + value, 0)
-            : -weight
-        ))
-      ));
-      const eigenvalues = symmetricEigenvalues(laplacian);
-      const value = Math.max(0, eigenvalues[1] ?? 0);
-      return {
-        value: value < 1e-7 ? 0 : value,
-        connected: value >= 1e-7,
-        insufficientNodes: false,
-        presentCount: presentNodes.length
-      };
     }
 
     function* combinations(values, size, start = 0, prefix = []) {
@@ -4953,77 +4706,6 @@
       }
     }
 
-    function updateAlgebraicConnectivityMetric() {
-      const baseline = computeAlgebraicConnectivity(null, new Set());
-      const ready = state.phase === "ready";
-      const current = state.final
-        ? computeAlgebraicConnectivity(state.mode, state.selected)
-        : null;
-      const formatValue = (result) => result?.value == null ? "—" : result.value.toFixed(3);
-      const baselineText = baseline.value == null
-        ? "无定义"
-        : baseline.value.toFixed(3);
-
-      algebraicRow.classList.remove("is-connected", "is-disconnected");
-      algebraicValue.textContent = "—";
-
-      if (ready) {
-        algebraicStatus.textContent = "等待播放";
-        algebraicDetail.innerHTML = `故障前 λ₂₀ = <strong>${baselineText}</strong> · 播放后计算故障值。`;
-        algebraicRow.setAttribute(
-          "aria-label",
-          baseline.value == null
-            ? "代数连通度无定义：现存节点少于两个"
-            : `故障前代数连通度 ${baselineText}，等待播放计算故障后数值`
-        );
-        return;
-      }
-
-      if (!state.final || !current) {
-        algebraicStatus.textContent = "正在计算";
-        algebraicDetail.innerHTML = `故障前 λ₂₀ = <strong>${baselineText}</strong> · 正在计算可靠边投影。`;
-        algebraicRow.setAttribute("aria-label", "正在计算故障后的代数连通度");
-        return;
-      }
-
-      if (current.insufficientNodes) {
-        algebraicStatus.textContent = "无定义";
-        algebraicValue.textContent = "—";
-        algebraicDetail.innerHTML = `剩余 <strong>${current.presentCount}</strong> 个节点，代数连通度至少需要两个节点。`;
-        algebraicRow.setAttribute("aria-label", "剩余节点不足两个，代数连通度无定义");
-        return;
-      }
-
-      algebraicValue.textContent = formatValue(current);
-      if (!current.connected) {
-        algebraicRow.classList.add("is-disconnected");
-        algebraicStatus.textContent = "无向投影已分裂";
-        algebraicDetail.innerHTML = `故障前 λ₂₀ = <strong>${baselineText}</strong> · 当前剩余 <strong>${current.presentCount}</strong> 节点，存在孤立区域。`;
-        algebraicRow.setAttribute("aria-label", `故障后代数连通度为 0，无向投影网络存在孤立区域`);
-        return;
-      }
-
-      algebraicRow.classList.add("is-connected");
-      algebraicStatus.textContent = "无向投影网络连通";
-      let changeText = "与故障前相同";
-      if (current.presentCount !== baseline.presentCount) {
-        const change = current.value - (baseline.value ?? 0);
-        const changeSign = change > 0 ? "+" : "";
-        changeText = `Δλ₂ ${changeSign}${change.toFixed(3)} · 剩余 ${current.presentCount} 节点`;
-      } else if (baseline.value != null && baseline.value > 0) {
-        const change = current.value - baseline.value;
-        if (Math.abs(change) >= 1e-7) {
-          const percentage = Math.abs(change) / baseline.value * 100;
-          changeText = `${change < 0 ? "降低" : "提高"} ${percentage.toFixed(1)}%`;
-        }
-      }
-      algebraicDetail.innerHTML = `故障前 <strong>${baselineText}</strong> → 当前 <strong>${formatValue(current)}</strong> · ${changeText}`;
-      algebraicRow.setAttribute(
-        "aria-label",
-        `故障后代数连通度 ${formatValue(current)}，故障前 ${baselineText}，${changeText}`
-      );
-    }
-
     function updateInterface() {
       const info = modeInfo[state.mode];
       const finalData = computeSimulation();
@@ -5132,7 +4814,6 @@
       }
 
       updateMetrics(finalData);
-      updateAlgebraicConnectivityMetric();
       updateProcessStage(state.phase, state.final && !finalData.success);
       const running = state.phase === "inject" || state.phase === "propagate";
       resetPlaybackButton.disabled = state.phase === "ready";

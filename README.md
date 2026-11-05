@@ -38,14 +38,6 @@
   <img src="assets/resilience-threshold.svg" alt="统一韧性指标、耐久区间和临界故障规模" width="100%">
 </p>
 
-## 代数连通度
-
-实验台同时显示可靠边无向投影网络的代数连通度 `λ₂`：`λ₂ > 0` 表示投影网络连通，`λ₂ = 0` 表示存在孤立区域。它用于比较故障前后的结构连通裕度，不替代零强制覆盖和 SSC 判定。
-
-<p align="center">
-  <img src="assets/algebraic-connectivity.svg" alt="有向网络投影、拉普拉斯矩阵和代数连通度计算关系" width="100%">
-</p>
-
 ## 使用方式
 
 1. 在顶部选择一种故障模式。
