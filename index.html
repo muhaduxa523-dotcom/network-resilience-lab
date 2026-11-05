@@ -218,10 +218,6 @@
       gap: 8px;
     }
 
-    #experimentLibraryButton {
-      display: none !important;
-    }
-
     .btn {
       display: inline-flex;
       min-height: 38px;
@@ -1419,6 +1415,142 @@
       transition: width 350ms ease;
     }
 
+    .algebraic-row {
+      position: relative;
+      display: grid;
+      margin-top: 17px;
+      padding: 16px 18px 14px;
+      gap: 8px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 92% 8%, rgba(75, 123, 236, 0.14), transparent 38%),
+        linear-gradient(145deg, #f9fbff 0%, #eef4ff 100%);
+      border: 1px solid #dbe5f7;
+      border-radius: var(--radius-md);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    }
+
+    .algebraic-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .algebraic-heading > span {
+      color: var(--ink-2);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .algebraic-heading > span small {
+      color: var(--blue);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .algebraic-heading > small {
+      color: var(--muted-2);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .algebraic-main {
+      display: flex;
+      min-width: 0;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .algebraic-main strong {
+      color: var(--blue);
+      font-family: var(--font-numeric);
+      font-size: 42px;
+      font-weight: 650;
+      font-variant-numeric: tabular-nums;
+      line-height: 0.92;
+      letter-spacing: -0.055em;
+    }
+
+    .algebraic-main small {
+      padding-bottom: 3px;
+      color: var(--blue-2);
+      font-size: 9px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .algebraic-status-line {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 10px;
+      line-height: 1.4;
+    }
+
+    .algebraic-status-label {
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .algebraic-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--amber);
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .algebraic-status::before {
+      width: 7px;
+      height: 7px;
+      flex: 0 0 auto;
+      content: "";
+      background: currentColor;
+      border-radius: 50%;
+      box-shadow: 0 0 0 3px rgba(185, 122, 8, 0.09);
+    }
+
+    .algebraic-row.is-connected .algebraic-status {
+      color: var(--green);
+    }
+
+    .algebraic-row.is-connected .algebraic-status::before {
+      box-shadow: 0 0 0 3px rgba(11, 143, 117, 0.1);
+    }
+
+    .algebraic-row.is-disconnected .algebraic-status {
+      color: var(--red);
+    }
+
+    .algebraic-row.is-disconnected .algebraic-status::before {
+      box-shadow: 0 0 0 3px rgba(207, 75, 67, 0.1);
+    }
+
+    .algebraic-detail {
+      min-width: 0;
+      margin-top: 2px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(204, 213, 226, 0.68);
+    }
+
+    .algebraic-detail p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 9px;
+      line-height: 1.55;
+    }
+
+    .algebraic-detail strong {
+      color: var(--ink-2);
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
     .set-list {
       display: grid;
       gap: 8px;
@@ -1625,121 +1757,6 @@
       font-weight: 700;
     }
 
-    .guide-dialog {
-      width: min(1120px, calc(100vw - 28px));
-    }
-
-    .guide-dialog .dialog-header {
-      cursor: default;
-    }
-
-    .guide-dialog .dialog-body {
-      display: grid;
-      gap: 0;
-    }
-
-    .guide-intro {
-      display: grid;
-      grid-template-columns: minmax(0, 1.5fr) minmax(250px, 0.7fr);
-      gap: 12px;
-      align-items: stretch;
-    }
-
-    .guide-lead {
-      margin: 0;
-      padding: 15px 16px;
-      color: var(--ink-2);
-      background: var(--surface-soft);
-      border-radius: 12px;
-      font-size: 12px;
-      line-height: 1.7;
-    }
-
-    .guide-lead strong {
-      color: var(--ink);
-    }
-
-    .guide-rule-list {
-      display: grid;
-      margin: 0;
-      padding: 12px 15px;
-      gap: 7px;
-      color: var(--ink-2);
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      list-style: none;
-      font-size: 11px;
-      line-height: 1.5;
-    }
-
-    .guide-rule-list li {
-      display: flex;
-      align-items: flex-start;
-      gap: 8px;
-    }
-
-    .guide-rule-list b {
-      display: inline-grid;
-      width: 19px;
-      height: 19px;
-      flex: 0 0 auto;
-      place-items: center;
-      color: #fff;
-      background: var(--ink);
-      border-radius: 50%;
-      font-size: 9px;
-    }
-
-    .guide-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-      margin-top: 14px;
-    }
-
-    .guide-card {
-      margin: 0;
-      overflow: hidden;
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-    }
-
-    .guide-card.is-wide {
-      grid-column: 1 / -1;
-    }
-
-    .guide-card img {
-      display: block;
-      width: 100%;
-      height: auto;
-      background: #fff;
-    }
-
-    .guide-card figcaption {
-      padding: 11px 14px 13px;
-      border-top: 1px solid var(--line);
-    }
-
-    .guide-card figcaption strong {
-      display: block;
-      margin-bottom: 4px;
-      color: var(--ink);
-      font-size: 12px;
-    }
-
-    .guide-card figcaption span {
-      display: block;
-      color: var(--muted);
-      font-size: 10px;
-      line-height: 1.55;
-    }
-
-    .guide-dialog .dialog-footer {
-      justify-content: flex-end;
-    }
-
     .dialog-shell {
       display: flex;
       max-height: calc(100vh - 34px);
@@ -1934,13 +1951,74 @@
 
     .matrix-toolbar-actions {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
+      justify-content: flex-end;
       gap: 8px;
     }
 
     .matrix-toolbar .btn {
       min-height: 34px;
       font-size: 11px;
+    }
+
+    .matrix-text-head {
+      display: flex;
+      margin: 10px 0 7px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .matrix-text-head strong {
+      color: var(--ink-2);
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .matrix-text-head span {
+      color: var(--muted-2);
+      font-size: 9px;
+    }
+
+    .matrix-text-input {
+      display: block;
+      width: 100%;
+      min-height: 132px;
+      max-height: 240px;
+      padding: 11px 13px;
+      resize: vertical;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+      outline: none;
+      font-family: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.55;
+      tab-size: 2;
+      white-space: pre;
+    }
+
+    .matrix-text-input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(36, 87, 214, 0.1);
+    }
+
+    .matrix-text-input.has-error {
+      border-color: var(--red);
+      box-shadow: 0 0 0 3px rgba(207, 75, 67, 0.09);
+    }
+
+    .matrix-preview-label {
+      display: flex;
+      margin: 12px 0 7px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 9px;
+      font-weight: 600;
     }
 
     .matrix-format {
@@ -1950,31 +2028,126 @@
       line-height: 1.5;
     }
 
-    .matrix-input {
-      display: block;
-      width: 100%;
-      min-height: 142px;
-      padding: 12px 14px;
-      resize: vertical;
-      color: var(--ink);
-      background: #fff;
-      border: 1px solid var(--line-strong);
-      border-radius: 10px;
-      outline: none;
-      font-family: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
-      font-size: 12px;
-      line-height: 1.65;
-      tab-size: 2;
+    .matrix-editor {
+      position: relative;
+      max-height: 330px;
+      padding: 13px;
+      overflow: auto;
+      background:
+        radial-gradient(circle at 95% 5%, rgba(75, 123, 236, 0.1), transparent 38%),
+        linear-gradient(145deg, #f9fbff 0%, #eef4ff 100%);
+      border: 1px solid #dbe5f7;
+      border-radius: 12px;
+      overscroll-behavior: contain;
     }
 
-    .matrix-input:focus {
-      border-color: var(--blue);
-      box-shadow: 0 0 0 3px rgba(45, 98, 215, 0.1);
+    .matrix-paste-capture {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      overflow: hidden;
+      opacity: 0;
+      border: 0;
+      pointer-events: none;
     }
 
-    .matrix-input.has-error {
+    .matrix-editor.has-error {
       border-color: var(--red);
       box-shadow: 0 0 0 3px rgba(207, 75, 67, 0.09);
+    }
+
+    .matrix-grid {
+      display: grid;
+      width: max-content;
+      min-width: 100%;
+      grid-template-columns: 42px repeat(var(--matrix-size, 7), minmax(34px, 1fr));
+      gap: 4px;
+      align-items: center;
+    }
+
+    .matrix-axis {
+      display: grid;
+      min-height: 28px;
+      place-items: center;
+      color: var(--muted);
+      font-family: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+      font-size: 10px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .matrix-axis.is-column {
+      color: var(--muted-2);
+    }
+
+    .matrix-corner {
+      position: relative;
+    }
+
+    .matrix-corner::before,
+    .matrix-corner::after {
+      position: absolute;
+      content: "";
+      background: #d3ddea;
+    }
+
+    .matrix-corner::before {
+      width: 1px;
+      height: 14px;
+      transform: rotate(45deg);
+    }
+
+    .matrix-corner::after {
+      width: 14px;
+      height: 1px;
+      transform: rotate(45deg);
+    }
+
+    .matrix-cell {
+      display: grid;
+      width: 100%;
+      min-width: 34px;
+      height: 34px;
+      padding: 0;
+      place-items: center;
+      color: #a2adbd;
+      background: rgba(255, 255, 255, 0.84);
+      border: 1px solid #e0e7f1;
+      border-radius: 7px;
+      cursor: pointer;
+      font-family: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+      font-weight: 650;
+      font-variant-numeric: tabular-nums;
+      transition: color 140ms ease, background 140ms ease, border-color 140ms ease, transform 140ms ease;
+    }
+
+    .matrix-cell:hover:not(:disabled) {
+      border-color: #9eb8f0;
+      transform: translateY(-1px);
+    }
+
+    .matrix-cell.is-one {
+      color: var(--blue);
+      background: #e5edff;
+      border-color: #b8cbf5;
+      box-shadow: inset 0 0 0 1px rgba(36, 87, 214, 0.05);
+    }
+
+    .matrix-cell.is-diagonal {
+      color: #c0c9d5;
+      background:
+        repeating-linear-gradient(
+          -45deg,
+          #f1f4f9 0,
+          #f1f4f9 4px,
+          #e9eef5 4px,
+          #e9eef5 8px
+        );
+      border-color: #e1e7f0;
+      cursor: not-allowed;
     }
 
     .matrix-actions {
@@ -2167,15 +2340,6 @@
         grid-template-columns: 1fr;
       }
 
-      .guide-intro,
-      .guide-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .guide-card.is-wide {
-        grid-column: auto;
-      }
-
       .experiment-item-actions {
         flex-wrap: wrap;
       }
@@ -2323,19 +2487,12 @@
     </div>
 
     <div class="topbar-actions">
-      <button class="btn" id="experimentLibraryButton" type="button" hidden aria-hidden="true">
+      <button class="btn" id="experimentLibraryButton" type="button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
           <path d="M4 7.5h6l1.7 2H20v8.7a1.8 1.8 0 0 1-1.8 1.8H5.8A1.8 1.8 0 0 1 4 18.2Z"></path>
           <path d="M4 7.5V5.8A1.8 1.8 0 0 1 5.8 4h4.1l1.5 1.8H18a2 2 0 0 1 2 2v1.7"></path>
         </svg>
         实验库
-      </button>
-      <button class="btn" id="researchGuideButton" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
-          <path d="M4.5 5.5A2.5 2.5 0 0 1 7 3h4.5v16H7a2.5 2.5 0 0 0-2.5 2Z"></path>
-          <path d="M19.5 5.5A2.5 2.5 0 0 0 17 3h-4.5v16H17a2.5 2.5 0 0 1 2.5 2Z"></path>
-        </svg>
-        原理解读
       </button>
       <button class="btn" id="editTopologyButton" type="button">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
@@ -2569,6 +2726,23 @@
             <strong id="coverageText">43%</strong>
           </div>
 
+          <div class="algebraic-row" id="algebraicRow">
+            <div class="algebraic-heading">
+              <span>代数连通度 <small>（λ₂）</small></span>
+              <small>实时特征值</small>
+            </div>
+            <div class="algebraic-main">
+              <strong id="algebraicValue">—</strong>
+              <small>λ₂(G↔)</small>
+            </div>
+            <div class="algebraic-status-line">
+              <span class="algebraic-status-label">网络状态</span>
+              <span class="algebraic-status" id="algebraicStatus">等待播放</span>
+            </div>
+            <div class="algebraic-detail">
+              <p id="algebraicDetail">正在计算故障前代数连通度。</p>
+            </div>
+          </div>
         </section>
 
         <section class="analysis-section" aria-label="故障集合与派生集合">
@@ -2627,49 +2801,47 @@
 
         <section class="dialog-section">
           <div class="dialog-section-head">
-            <h3>自主连接边</h3>
-            <span>无向连接会展开为两条反向有向边</span>
-          </div>
-          <div class="inline-actions" style="margin-bottom: 9px">
-            <div class="direction-switch is-visible" role="group" aria-label="连接方向">
-              <button class="direction-button" type="button" data-direction="single" aria-pressed="true" aria-label="创建有向连接">有向</button>
-              <button class="direction-button" type="button" data-direction="both" aria-pressed="false" aria-label="创建无向连接，展开为两条反向有向边">无向</button>
-            </div>
-          </div>
-          <div class="dialog-edge-builder">
-            <select class="edge-select" id="edgeFromSelect" aria-label="边起点"></select>
-            <span class="dialog-edge-arrow" aria-hidden="true">→</span>
-            <select class="edge-select" id="edgeToSelect" aria-label="边终点"></select>
-          </div>
-          <div class="dialog-button-row">
-            <button class="btn btn-primary" id="addEdgeButton" type="button">添加连接</button>
-            <button class="btn" id="removeEdgeButton" type="button">删除连接</button>
-            <button class="btn btn-ghost" id="clearEdgesButton" type="button">清空全部边</button>
-          </div>
-          <p class="dialog-status" id="edgeBuilderStatus">也可在拓扑图中直接连线。</p>
-        </section>
-
-        <section class="dialog-section">
-          <div class="dialog-section-head">
             <h3>邻接矩阵接入</h3>
             <span>a<sub>ij</sub> = 1 表示存在有向边 i → j</span>
           </div>
           <div class="matrix-toolbar">
-            <p class="matrix-format">每行一个节点，支持空格、逗号、分号或制表符分隔。</p>
+            <p class="matrix-format">点击单元格切换 0/1；行列标签对应节点序号，支持 Ctrl+C / Ctrl+V 直接复制粘贴。</p>
             <div class="matrix-toolbar-actions">
-              <input id="matrixFileInput" type="file" accept=".txt,.csv,text/plain,text/csv" hidden>
-              <button class="btn" id="importMatrixFileButton" type="button">导入 CSV / TXT</button>
+              <button class="btn btn-ghost" id="clearEdgesButton" type="button">清空所有边</button>
               <button class="btn" id="fillMatrixButton" type="button">读取当前拓扑</button>
             </div>
           </div>
-          <label class="sr-only" for="adjacencyMatrixInput">邻接矩阵</label>
+          <div class="matrix-text-head">
+            <strong>矩阵文本</strong>
+            <span>支持空格、逗号、分号或制表符；可直接复制粘贴</span>
+          </div>
           <textarea
-            class="matrix-input"
+            class="matrix-text-input"
             id="adjacencyMatrixInput"
             spellcheck="false"
+            aria-label="邻接矩阵文本"
             aria-describedby="matrixStatus"
-            placeholder="0 1 0 0&#10;0 0 1 0&#10;0 0 0 1&#10;1 0 0 0"
+            placeholder="0 1 0 0 0 0 0&#10;0 0 0 1 1 0 0&#10;..."
           ></textarea>
+          <div class="matrix-preview-label">
+            <span>矩阵预览</span>
+            <span>点击 0/1 单元格也可直接修改</span>
+          </div>
+          <div class="matrix-editor" id="matrixEditor">
+            <div
+              class="matrix-grid"
+              id="adjacencyMatrixGrid"
+              role="group"
+              aria-label="邻接矩阵编辑器"
+              aria-describedby="matrixStatus"
+            ></div>
+            <textarea
+              class="matrix-paste-capture"
+              id="matrixPasteCapture"
+              tabindex="-1"
+              aria-label="粘贴邻接矩阵"
+            ></textarea>
+          </div>
           <div class="matrix-actions">
             <p class="dialog-status" id="matrixStatus" role="status" aria-live="polite">可粘贴矩阵，或直接读取当前拓扑。</p>
             <button class="btn btn-primary" id="applyMatrixButton" type="button">应用矩阵</button>
@@ -2744,66 +2916,6 @@
       <footer class="dialog-footer experiment-dialog-footer">
         <button class="btn" id="exportBackupButton" type="button">导出完整备份</button>
         <button class="btn" id="closeExperimentFooterButton" type="button">关闭</button>
-      </footer>
-    </div>
-  </dialog>
-
-  <dialog class="topology-dialog guide-dialog" id="researchGuideDialog" aria-labelledby="researchGuideTitle">
-    <div class="dialog-shell">
-      <header class="dialog-header">
-        <div>
-          <h2 id="researchGuideTitle">原理解读</h2>
-          <p>故障如何改变传播通道，以及为什么最终会得到 SSC 或非 SSC 的结论。</p>
-        </div>
-        <button class="dialog-close" id="closeResearchGuideButton" type="button" aria-label="关闭原理解读">×</button>
-      </header>
-
-      <div class="dialog-body">
-        <section class="guide-intro" aria-label="零强制判定摘要">
-          <p class="guide-lead">
-            领导者先被染黑；如果一个黑节点<strong>只有一个白色后继</strong>，且连接可靠，该后继就会被强制染色。重复这一过程，直到不再出现新的黑色节点。
-          </p>
-          <ul class="guide-rule-list">
-            <li><b>1</b><span>不确定边计入白色后继数量，但不能承担染色。</span></li>
-            <li><b>2</b><span>全部现存节点都被覆盖，才称为具有强结构能控性。</span></li>
-            <li><b>3</b><span>全部节点被移除时网络完全失效，不判定为 SSC。</span></li>
-          </ul>
-        </section>
-
-        <div class="guide-grid">
-          <figure class="guide-card is-wide">
-            <img src="assets/analysis-workflow.svg" alt="故障集合经过故障后网络、零强制传播，最终进行 SSC 判定的四步流程">
-            <figcaption>
-              <strong>从故障注入到控制判定</strong>
-              <span>展示一次分析中四个步骤之间的因果关系。</span>
-            </figcaption>
-          </figure>
-          <figure class="guide-card is-wide">
-            <img src="assets/four-fault-modes.svg" alt="边移除、节点移除、边不确定和节点不确定四种故障模式的图示">
-            <figcaption>
-              <strong>四类故障模式</strong>
-              <span>统一区分结构删除和连接不确定性，避免把不同故障机制混为一谈。</span>
-            </figcaption>
-          </figure>
-          <figure class="guide-card">
-            <img src="assets/zero-forcing.svg" alt="领导者初始染色、第一次强制和收敛状态的零强制传播图示">
-            <figcaption>
-              <strong>零强制传播规则</strong>
-              <span>由初始领导者开始，沿唯一且可靠的白色后继方向逐层染色。</span>
-            </figcaption>
-          </figure>
-          <figure class="guide-card">
-            <img src="assets/resilience-threshold.svg" alt="统一韧性指标、耐久区和临界故障规模的关系图">
-            <figcaption>
-              <strong>统一韧性指标</strong>
-              <span>ρ 是可承受的最大故障规模，ρ + 1 是首次可能失去 SSC 的临界规模。</span>
-            </figcaption>
-          </figure>
-        </div>
-      </div>
-
-      <footer class="dialog-footer">
-        <button class="btn btn-primary" id="closeResearchGuideFooterButton" type="button">返回实验台</button>
       </footer>
     </div>
   </dialog>
@@ -3133,7 +3245,7 @@
 
     const state = {
       mode: "edge",
-      selected: new Set(["1-4", "3-5"]),
+      selected: new Set(),
       colored: new Set([1, 2, 3]),
       usedEdges: new Set(),
       forcedNode: null,
@@ -3223,6 +3335,10 @@
     const coverageText = document.getElementById("coverageText");
     const coverageBar = document.getElementById("coverageBar");
     const coverageTrack = coverageBar.closest(".coverage-track");
+    const algebraicRow = document.getElementById("algebraicRow");
+    const algebraicValue = document.getElementById("algebraicValue");
+    const algebraicStatus = document.getElementById("algebraicStatus");
+    const algebraicDetail = document.getElementById("algebraicDetail");
     const faultSetLabel = document.getElementById("faultSetLabel");
     const faultSetText = document.getElementById("faultSetText");
     const derivedSetText = document.getElementById("derivedSetText");
@@ -3230,10 +3346,6 @@
     const topologyDialog = document.getElementById("topologyDialog");
     const topologyDialogHeader = topologyDialog.querySelector(".dialog-header");
     const editTopologyButton = document.getElementById("editTopologyButton");
-    const researchGuideButton = document.getElementById("researchGuideButton");
-    const researchGuideDialog = document.getElementById("researchGuideDialog");
-    const closeResearchGuideButton = document.getElementById("closeResearchGuideButton");
-    const closeResearchGuideFooterButton = document.getElementById("closeResearchGuideFooterButton");
     const experimentLibraryButton = document.getElementById("experimentLibraryButton");
     const experimentDialog = document.getElementById("experimentDialog");
     const closeExperimentButton = document.getElementById("closeExperimentButton");
@@ -3257,17 +3369,13 @@
     const topologySummary = document.getElementById("topologySummary");
     const leaderStatus = document.getElementById("leaderStatus");
     const leaderPicker = document.getElementById("leaderPicker");
-    const edgeFromSelect = document.getElementById("edgeFromSelect");
-    const edgeToSelect = document.getElementById("edgeToSelect");
-    const addEdgeButton = document.getElementById("addEdgeButton");
-    const removeEdgeButton = document.getElementById("removeEdgeButton");
     const clearEdgesButton = document.getElementById("clearEdgesButton");
-    const edgeBuilderStatus = document.getElementById("edgeBuilderStatus");
     const applyTopologyButton = document.getElementById("applyTopologyButton");
     const restoreSampleButton = document.getElementById("restoreSampleButton");
+    const matrixEditor = document.getElementById("matrixEditor");
+    const adjacencyMatrixGrid = document.getElementById("adjacencyMatrixGrid");
+    const matrixPasteCapture = document.getElementById("matrixPasteCapture");
     const adjacencyMatrixInput = document.getElementById("adjacencyMatrixInput");
-    const matrixFileInput = document.getElementById("matrixFileInput");
-    const importMatrixFileButton = document.getElementById("importMatrixFileButton");
     const fillMatrixButton = document.getElementById("fillMatrixButton");
     const applyMatrixButton = document.getElementById("applyMatrixButton");
     const matrixStatus = document.getElementById("matrixStatus");
@@ -3280,7 +3388,7 @@
     let currentExperimentName = "";
     let historyExperimentId = null;
     let recoveryTimer = null;
-    const apiOrigin = window.location.protocol === "file:" ? "http://127.0.0.1:8000" : "";
+    const apiOrigin = window.location.protocol === "file:" ? "http://127.0.0.1:8080" : "";
     const recoveryStorageKey = "network-resilience-lab.autorecovery.v1";
 
     function escapeHtml(value) {
@@ -3367,7 +3475,7 @@
         return false;
       }
       try {
-        applyExperimentConfig(snapshot.config);
+        applyExperimentConfig({ ...snapshot.config, selected: [] });
         currentExperimentId = Number.isInteger(snapshot.current_experiment_id)
           ? snapshot.current_experiment_id
           : null;
@@ -3376,7 +3484,7 @@
           : "";
         updateCurrentExperimentIndicator();
         if (currentExperimentName) experimentNameInput.value = currentExperimentName;
-        showToast("已恢复上次编辑状态");
+        showToast("已恢复上次编辑的拓扑，故障已清空");
         return true;
       } catch {
         try {
@@ -3813,7 +3921,7 @@
       );
       Object.keys(resilienceMetricCache).forEach((key) => delete resilienceMetricCache[key]);
       renderLeaderPicker();
-      edgeBuilderStatus.textContent = message;
+      setMatrixStatus(message);
       prepareSimulation();
       showToast(message);
     }
@@ -3948,6 +4056,135 @@
       return result;
     }
 
+    function symmetricEigenvalues(matrix) {
+      const size = matrix.length;
+      const values = matrix.map((row) => [...row]);
+      const maxIterations = Math.max(1, size * size * 80);
+
+      for (let iteration = 0; iteration < maxIterations; iteration++) {
+        let pivotRow = 0;
+        let pivotColumn = 1;
+        let largestOffDiagonal = 0;
+        for (let row = 0; row < size; row++) {
+          for (let column = row + 1; column < size; column++) {
+            const magnitude = Math.abs(values[row][column]);
+            if (magnitude > largestOffDiagonal) {
+              largestOffDiagonal = magnitude;
+              pivotRow = row;
+              pivotColumn = column;
+            }
+          }
+        }
+
+        if (largestOffDiagonal < 1e-11) break;
+
+        const row = pivotRow;
+        const column = pivotColumn;
+        const angle = 0.5 * Math.atan2(
+          2 * values[row][column],
+          values[column][column] - values[row][row]
+        );
+        const cosine = Math.cos(angle);
+        const sine = Math.sin(angle);
+        const oldRowDiagonal = values[row][row];
+        const oldColumnDiagonal = values[column][column];
+        const oldOffDiagonal = values[row][column];
+
+        for (let index = 0; index < size; index++) {
+          if (index === row || index === column) continue;
+          const oldRowValue = values[index][row];
+          const oldColumnValue = values[index][column];
+          values[index][row] = cosine * oldRowValue - sine * oldColumnValue;
+          values[row][index] = values[index][row];
+          values[index][column] = sine * oldRowValue + cosine * oldColumnValue;
+          values[column][index] = values[index][column];
+        }
+
+        values[row][row] = cosine * cosine * oldRowDiagonal
+          - 2 * sine * cosine * oldOffDiagonal
+          + sine * sine * oldColumnDiagonal;
+        values[column][column] = sine * sine * oldRowDiagonal
+          + 2 * sine * cosine * oldOffDiagonal
+          + cosine * cosine * oldColumnDiagonal;
+        values[row][column] = 0;
+        values[column][row] = 0;
+      }
+
+      return Array.from({ length: size }, (_, index) => values[index][index])
+        .sort((left, right) => left - right);
+    }
+
+    function computeAlgebraicConnectivity(mode = null, selected = new Set()) {
+      const selectedNodes = mode === "node" || mode === "nu"
+        ? new Set([...selected].map(Number))
+        : new Set();
+      const removedNodes = mode === "node" ? selectedNodes : new Set();
+      const presentNodes = nodes.filter((node) => !removedNodes.has(node.id));
+
+      if (presentNodes.length < 2) {
+        return {
+          value: null,
+          connected: false,
+          insufficientNodes: true,
+          presentCount: presentNodes.length
+        };
+      }
+
+      const indexByNode = new Map(presentNodes.map((node, index) => [node.id, index]));
+      const adjacency = Array.from(
+        { length: presentNodes.length },
+        () => Array(presentNodes.length).fill(0)
+      );
+
+      edges.forEach((edge) => {
+        if (mode === "edge" && selected.has(edge.id)) return;
+        if (mode === "eu" && selected.has(edge.id)) return;
+        if ((mode === "node" || mode === "nu") && selectedNodes.has(edge.from)) return;
+        const fromIndex = indexByNode.get(edge.from);
+        const toIndex = indexByNode.get(edge.to);
+        if (fromIndex == null || toIndex == null || fromIndex === toIndex) return;
+        const weight = Math.max(0, Number(edge.weight ?? 1));
+        if (!Number.isFinite(weight) || weight === 0) return;
+        adjacency[fromIndex][toIndex] = Math.max(adjacency[fromIndex][toIndex], weight);
+        adjacency[toIndex][fromIndex] = Math.max(adjacency[toIndex][fromIndex], weight);
+      });
+
+      const visited = new Set([0]);
+      const queue = [0];
+      while (queue.length) {
+        const current = queue.shift();
+        for (let next = 0; next < presentNodes.length; next++) {
+          if (adjacency[current][next] <= 0 || visited.has(next)) continue;
+          visited.add(next);
+          queue.push(next);
+        }
+      }
+      if (visited.size !== presentNodes.length) {
+        return {
+          value: 0,
+          connected: false,
+          insufficientNodes: false,
+          presentCount: presentNodes.length
+        };
+      }
+
+      const laplacian = adjacency.map((row, rowIndex) => (
+        row.map((weight, columnIndex) => (
+          rowIndex === columnIndex
+            ? row.reduce((sum, value) => sum + value, 0)
+            : -weight
+        ))
+      ));
+      const eigenvalues = symmetricEigenvalues(laplacian);
+      const value = Math.max(0, eigenvalues[1] ?? 0);
+      return {
+        value: value < 1e-7 ? 0 : value,
+        connected: value >= 1e-7,
+        insufficientNodes: false,
+        presentCount: presentNodes.length
+      };
+    }
+
     function* combinations(values, size, start = 0, prefix = []) {
       if (prefix.length === size) {
         yield prefix;
@@ -3957,16 +4194,6 @@
       for (let index = start; index <= values.length - remaining; index++) {
         yield* combinations(values, size, index + 1, [...prefix, values[index]]);
       }
-    }
-
-    function findFailingFaultSubset(mode, maxSize = 2) {
-      const universe = getFaultUniverse(mode);
-      for (let size = 1; size <= Math.min(maxSize, universe.length); size++) {
-        for (const subset of combinations(universe, size)) {
-          if (!computeSimulation(mode, new Set(subset)).success) return subset;
-        }
-      }
-      return [];
     }
 
     function computeResilienceMetric(mode) {
@@ -4171,9 +4398,9 @@
       state.direction = direction === "both" ? "both" : "single";
       updateDirectionButtons();
       if (state.connectionMode) {
-        edgeBuilderStatus.textContent = state.direction === "both"
+        setMatrixStatus(state.direction === "both"
           ? "无向连接：依次选择两个节点，将展开为两条反向有向边。"
-          : "有向连接：依次选择起点和终点节点。";
+          : "有向连接：依次选择起点和终点节点。");
       }
     }
 
@@ -4230,20 +4457,6 @@
       updateInterface();
     }
 
-    function syncSelectors() {
-      const currentFrom = Number(edgeFromSelect.value);
-      const currentTo = Number(edgeToSelect.value);
-      const options = nodes.map((node) => `<option value="${node.id}">节点 ${node.id}</option>`).join("");
-      edgeFromSelect.innerHTML = options;
-      edgeToSelect.innerHTML = options;
-      const from = nodes.some((node) => node.id === currentFrom) ? currentFrom : nodes[0].id;
-      edgeFromSelect.value = String(from);
-      const to = nodes.some((node) => node.id === currentTo && node.id !== from)
-        ? currentTo
-        : nodes.find((node) => node.id !== from)?.id || nodes[1].id;
-      edgeToSelect.value = String(to);
-    }
-
     function createMatrixText(nodeList = nodes, edgeList = edges) {
       const count = nodeList.length;
       const matrix = Array.from({ length: count }, () => Array(count).fill(0));
@@ -4257,19 +4470,27 @@
       return matrix.map((row) => row.join(" ")).join("\n");
     }
 
-    function parseAdjacencyMatrix(text) {
+    function readAdjacencyRows(text) {
       const cleaned = String(text)
         .replace(/^\uFEFF/, "")
         .replace(/[\[\]【】]/g, " ")
         .replace(/[，；]/g, ",")
         .trim();
-      if (!cleaned) return { error: "矩阵为空，请粘贴矩阵或导入 CSV / TXT 文件。" };
-
-      const lines = cleaned
+      if (!cleaned) return [];
+      return cleaned
         .split(/\r?\n/)
         .map((line) => line.trim())
-        .filter(Boolean);
-      const rows = lines.map((line) => line.split(/[\s,;]+/).filter(Boolean));
+        .filter(Boolean)
+        .map((line) => line.split(/[\s,;]+/).filter(Boolean));
+    }
+
+    function createMatrixTextFromRows(rows) {
+      return rows.map((row) => row.join(" ")).join("\n");
+    }
+
+    function parseAdjacencyMatrix(text) {
+      const rows = readAdjacencyRows(text);
+      if (rows.length === 0) return { error: "矩阵为空，请编辑矩阵或直接粘贴矩阵文本。" };
       const size = rows.length;
       if (size < TOPOLOGY_MIN_NODES || size > TOPOLOGY_MAX_NODES) {
         return {
@@ -4300,16 +4521,117 @@
           if (value === "1") pairs.push([rowIndex + 1, columnIndex + 1]);
         });
       });
-      return { size, pairs };
+      return { size, pairs, rows };
+    }
+
+    function renderAdjacencyMatrixGrid() {
+      const rows = readAdjacencyRows(adjacencyMatrixInput.value);
+      if (
+        rows.length < TOPOLOGY_MIN_NODES ||
+        rows.length > TOPOLOGY_MAX_NODES ||
+        rows.some((row) => row.length !== rows.length)
+      ) {
+        adjacencyMatrixGrid.innerHTML = "";
+        adjacencyMatrixGrid.style.setProperty("--matrix-size", "1");
+        return;
+      }
+
+      adjacencyMatrixGrid.style.setProperty("--matrix-size", String(rows.length));
+      const parts = [`<span class="matrix-axis matrix-corner" aria-hidden="true"></span>`];
+      rows.forEach((_, index) => {
+        parts.push(`<span class="matrix-axis is-column" aria-hidden="true">${index + 1}</span>`);
+      });
+      rows.forEach((row, rowIndex) => {
+        parts.push(`<span class="matrix-axis" aria-hidden="true">${rowIndex + 1}</span>`);
+        row.forEach((value, columnIndex) => {
+          const diagonal = rowIndex === columnIndex;
+          const classes = ["matrix-cell"];
+          if (value === "1") classes.push("is-one");
+          if (diagonal) classes.push("is-diagonal");
+          const action = value === "1" ? "删除" : "添加";
+          parts.push(`
+            <button
+              class="${classes.join(" ")}"
+              type="button"
+              data-matrix-row="${rowIndex}"
+              data-matrix-column="${columnIndex}"
+              aria-label="节点 ${rowIndex + 1} 到节点 ${columnIndex + 1}，当前 ${value}，点击${action}有向边"
+              ${diagonal ? "disabled" : ""}
+            >${value}</button>
+          `);
+        });
+      });
+      adjacencyMatrixGrid.innerHTML = parts.join("");
+    }
+
+    function toggleMatrixCell(rowIndex, columnIndex) {
+      if (rowIndex === columnIndex) return;
+      const rows = readAdjacencyRows(adjacencyMatrixInput.value);
+      if (!rows[rowIndex] || rows[rowIndex][columnIndex] == null) return;
+      rows[rowIndex][columnIndex] = rows[rowIndex][columnIndex] === "1" ? "0" : "1";
+      adjacencyMatrixInput.value = createMatrixTextFromRows(rows);
+      renderAdjacencyMatrixGrid();
+      const enabled = rows[rowIndex][columnIndex] === "1";
+      setMatrixStatus(`已${enabled ? "添加" : "删除"}有向边 ${rowIndex + 1} → ${columnIndex + 1}，点击“应用矩阵”后生效。`);
     }
 
     function setMatrixStatus(message, isError = false) {
       matrixStatus.textContent = message;
+      matrixEditor.classList.toggle("has-error", isError);
       adjacencyMatrixInput.classList.toggle("has-error", isError);
+    }
+
+    function applyMatrixText(text, sourceLabel) {
+      const parsed = parseAdjacencyMatrix(text);
+      if (parsed.error) {
+        setMatrixStatus(`${sourceLabel}失败：${parsed.error}`, true);
+        return false;
+      }
+      adjacencyMatrixInput.value = createMatrixTextFromRows(parsed.rows);
+      renderAdjacencyMatrixGrid();
+      setMatrixStatus(`${sourceLabel}：${parsed.size} 阶矩阵，${parsed.pairs.length} 条有向边；点击“应用矩阵”后生效。`);
+      return true;
+    }
+
+    async function copyMatrixToClipboard() {
+      const rows = readAdjacencyRows(adjacencyMatrixInput.value);
+      if (rows.length === 0) {
+        setMatrixStatus("没有可复制的矩阵。", true);
+        return;
+      }
+      const text = rows.map((row) => row.join("\t")).join("\n");
+      const helper = document.createElement("textarea");
+      helper.value = text;
+      helper.setAttribute("readonly", "");
+      helper.style.position = "fixed";
+      helper.style.left = "-9999px";
+      document.body.appendChild(helper);
+      helper.select();
+      let copied = false;
+      try {
+        copied = document.execCommand("copy");
+      } catch {
+        copied = false;
+      }
+      helper.remove();
+      if (!copied) {
+        try {
+          await navigator.clipboard.writeText(text);
+          copied = true;
+        } catch {
+          copied = false;
+        }
+      }
+      if (copied) {
+        setMatrixStatus(`已复制 ${rows.length} 阶邻接矩阵，可直接粘贴到 Excel 或文本编辑器。`);
+      } else {
+        setMatrixStatus("浏览器未允许写入剪贴板，请检查剪贴板权限。", true);
+      }
     }
 
     function syncAdjacencyMatrix() {
       adjacencyMatrixInput.value = createMatrixText();
+      renderAdjacencyMatrixGrid();
       setMatrixStatus(`当前拓扑：${nodes.length} 阶矩阵，${edges.length} 条有向边。`);
     }
 
@@ -4317,7 +4639,7 @@
       const parsed = parseAdjacencyMatrix(adjacencyMatrixInput.value);
       if (parsed.error) {
         setMatrixStatus(parsed.error, true);
-        adjacencyMatrixInput.focus();
+        adjacencyMatrixGrid.querySelector("button:not(:disabled)")?.focus();
         return false;
       }
 
@@ -4333,8 +4655,7 @@
       if (!sameTopology(before, captureTopologySnapshot())) recordTopologyHistory(before);
       if (topologyDialog.open) topologyDialog.close();
       recomputeAfterTopologyChange(
-        `已从邻接矩阵载入：${parsed.size} 个节点，${parsed.pairs.length} 条有向边。`,
-        false
+        `已从邻接矩阵载入：${parsed.size} 个节点，${parsed.pairs.length} 条有向边。`
       );
       return true;
     }
@@ -4354,7 +4675,6 @@
         `;
       }).join("");
       leaderStatus.textContent = `已选择 ${configState.leaders.size} 个领导者 · 至少保留 1 个`;
-      syncSelectors();
       updateTopologyDraftSummary();
     }
 
@@ -4386,7 +4706,7 @@
       layoutMenu.open = false;
       Object.keys(resilienceMetricCache).forEach((key) => delete resilienceMetricCache[key]);
       state.connectionSource = null;
-      edgeBuilderStatus.textContent = "已自动排布节点。";
+      setMatrixStatus("已自动排布节点。");
       prepareSimulation();
       showToast("已自动排布节点");
     }
@@ -4476,14 +4796,13 @@
       }
     }
 
-    function recomputeAfterTopologyChange(message, autoSelectFaults = true) {
+    function recomputeAfterTopologyChange(message) {
       Object.keys(resilienceMetricCache).forEach((key) => delete resilienceMetricCache[key]);
-      state.selected = autoSelectFaults
-        ? new Set(findFailingFaultSubset(state.mode, 2))
-        : new Set();
+      state.selected = new Set();
       state.connectionSource = null;
       renderLeaderPicker();
-      edgeBuilderStatus.textContent = message;
+      syncAdjacencyMatrix();
+      setMatrixStatus(message);
       prepareSimulation();
       showToast(message);
     }
@@ -4493,11 +4812,11 @@
       const to = Number(toValue);
       if (!Number.isInteger(from) || !Number.isInteger(to)) return false;
       if (!nodes.some((node) => node.id === from) || !nodes.some((node) => node.id === to)) {
-        edgeBuilderStatus.textContent = "新节点尚未应用，请先应用节点数量。";
+        setMatrixStatus("新节点尚未应用，请先应用节点数量。", true);
         return false;
       }
       if (from === to) {
-        edgeBuilderStatus.textContent = "起点和终点必须不同。";
+        setMatrixStatus("起点和终点必须不同。", true);
         return false;
       }
 
@@ -4506,9 +4825,9 @@
         !edges.some((edge) => edge.from === source && edge.to === target)
       ));
       if (missing.length === 0) {
-        edgeBuilderStatus.textContent = bidirectional
+        setMatrixStatus(bidirectional
           ? `无向连接 ${from} ↔ ${to} 已存在。`
-          : `有向连接 ${from} → ${to} 已存在。`;
+          : `有向连接 ${from} → ${to} 已存在。`, true);
         return false;
       }
 
@@ -4527,9 +4846,9 @@
       const to = Number(toValue);
       const requested = new Set(bidirectional ? [`${from}-${to}`, `${to}-${from}`] : [`${from}-${to}`]);
       if (!edges.some((edge) => requested.has(edge.id))) {
-        edgeBuilderStatus.textContent = bidirectional
+        setMatrixStatus(bidirectional
           ? `无向连接 ${from} ↔ ${to} 不存在。`
-          : `有向连接 ${from} → ${to} 不存在。`;
+          : `有向连接 ${from} → ${to} 不存在。`, true);
         return;
       }
       recordTopologyHistory();
@@ -4552,7 +4871,7 @@
       if (state.connectionSource == null) {
         state.connectionSource = nodeId;
         graphHint.textContent = `起点为节点 ${nodeId}，请选择终点节点`;
-        edgeBuilderStatus.textContent = `起点为节点 ${nodeId}，请选择终点节点。`;
+        setMatrixStatus(`起点为节点 ${nodeId}，请选择终点节点。`);
         renderGraph();
         return;
       }
@@ -4600,9 +4919,9 @@
       edges = buildGeneratedEdges(nodes, defaultPairs);
       nodeCountInput.value = "7";
       state.mode = "edge";
-      state.selected = new Set(["1-4", "3-5"]);
+      state.selected = new Set();
       state.connectionSource = null;
-      edgeBuilderStatus.textContent = "已恢复默认示例。";
+      setMatrixStatus("已恢复默认示例。");
       Object.keys(resilienceMetricCache).forEach((key) => delete resilienceMetricCache[key]);
       renderLeaderPicker();
       syncModeTabs();
@@ -4704,6 +5023,77 @@
       } else {
         rhoRelation.innerHTML = `当前故障在耐久范围内；该类型 <strong>ρ = ${currentRho}</strong>。`;
       }
+    }
+
+    function updateAlgebraicConnectivityMetric() {
+      const baseline = computeAlgebraicConnectivity(null, new Set());
+      const ready = state.phase === "ready";
+      const current = state.final
+        ? computeAlgebraicConnectivity(state.mode, state.selected)
+        : null;
+      const formatValue = (result) => result?.value == null ? "—" : result.value.toFixed(4);
+      const baselineText = baseline.value == null
+        ? "无定义"
+        : baseline.value.toFixed(4);
+
+      algebraicRow.classList.remove("is-connected", "is-disconnected");
+      algebraicValue.textContent = baseline.value == null ? "—" : baselineText;
+
+      if (ready) {
+        algebraicStatus.textContent = "等待播放";
+        algebraicDetail.innerHTML = `故障前 λ₂₀ = <strong>${baselineText}</strong> · 播放后计算故障值。`;
+        algebraicRow.setAttribute(
+          "aria-label",
+          baseline.value == null
+            ? "代数连通度无定义：现存节点少于两个"
+            : `故障前代数连通度 ${baselineText}，等待播放计算故障后数值`
+        );
+        return;
+      }
+
+      if (!state.final || !current) {
+        algebraicStatus.textContent = "正在计算";
+        algebraicDetail.innerHTML = `故障前 λ₂₀ = <strong>${baselineText}</strong> · 正在计算可靠边投影。`;
+        algebraicRow.setAttribute("aria-label", "正在计算故障后的代数连通度");
+        return;
+      }
+
+      if (current.insufficientNodes) {
+        algebraicStatus.textContent = "无定义";
+        algebraicValue.textContent = "—";
+        algebraicDetail.innerHTML = `剩余 <strong>${current.presentCount}</strong> 个节点，代数连通度至少需要两个节点。`;
+        algebraicRow.setAttribute("aria-label", "剩余节点不足两个，代数连通度无定义");
+        return;
+      }
+
+      algebraicValue.textContent = formatValue(current);
+      if (!current.connected) {
+        algebraicRow.classList.add("is-disconnected");
+        algebraicStatus.textContent = "未连通";
+        algebraicDetail.innerHTML = `故障前 λ₂₀ = <strong>${baselineText}</strong> · 当前剩余 <strong>${current.presentCount}</strong> 节点，存在孤立区域。`;
+        algebraicRow.setAttribute("aria-label", `故障后代数连通度为 0，无向投影网络存在孤立区域`);
+        return;
+      }
+
+      algebraicRow.classList.add("is-connected");
+      algebraicStatus.textContent = "已连通";
+      let changeText = "与故障前相同";
+      if (current.presentCount !== baseline.presentCount) {
+        const change = current.value - (baseline.value ?? 0);
+        const changeSign = change > 0 ? "+" : "";
+        changeText = `Δλ₂ ${changeSign}${change.toFixed(4)} · 剩余 ${current.presentCount} 节点`;
+      } else if (baseline.value != null && baseline.value > 0) {
+        const change = current.value - baseline.value;
+        if (Math.abs(change) >= 1e-7) {
+          const percentage = Math.abs(change) / baseline.value * 100;
+          changeText = `${change < 0 ? "降低" : "提高"} ${percentage.toFixed(1)}%`;
+        }
+      }
+      algebraicDetail.innerHTML = `故障前 <strong>${baselineText}</strong> → 当前 <strong>${formatValue(current)}</strong> · ${changeText}`;
+      algebraicRow.setAttribute(
+        "aria-label",
+        `故障后代数连通度 ${formatValue(current)}，故障前 ${baselineText}，${changeText}`
+      );
     }
 
     function updateInterface() {
@@ -4814,6 +5204,7 @@
       }
 
       updateMetrics(finalData);
+      updateAlgebraicConnectivityMetric();
       updateProcessStage(state.phase, state.final && !finalData.success);
       const running = state.phase === "inject" || state.phase === "propagate";
       resetPlaybackButton.disabled = state.phase === "ready";
@@ -5272,18 +5663,6 @@
       showToast("已回到播放前");
     });
     replayButton.addEventListener("click", startSimulation);
-    researchGuideButton.addEventListener("click", () => {
-      if (typeof researchGuideDialog.showModal === "function") {
-        researchGuideDialog.showModal();
-      } else {
-        researchGuideDialog.setAttribute("open", "");
-      }
-    });
-    closeResearchGuideButton.addEventListener("click", () => researchGuideDialog.close());
-    closeResearchGuideFooterButton.addEventListener("click", () => researchGuideDialog.close());
-    researchGuideDialog.addEventListener("click", (event) => {
-      if (event.target === researchGuideDialog) researchGuideDialog.close();
-    });
     experimentLibraryButton.addEventListener("click", openExperimentLibrary);
     closeExperimentButton.addEventListener("click", () => experimentDialog.close());
     closeExperimentFooterButton.addEventListener("click", () => experimentDialog.close());
@@ -5329,7 +5708,6 @@
       nodeCountInput.value = String(configState.nodeCount);
       renderLeaderPicker();
       syncAdjacencyMatrix();
-      edgeBuilderStatus.textContent = "也可在拓扑图中直接连线。";
       cancelActiveNodeDrag();
       resetTopologyDialogPosition();
       if (typeof topologyDialog.showModal === "function") {
@@ -5373,15 +5751,9 @@
       renderLeaderPicker();
     });
 
-    addEdgeButton.addEventListener("click", () => {
-      addTopologyConnection(edgeFromSelect.value, edgeToSelect.value);
-    });
-    removeEdgeButton.addEventListener("click", () => {
-      removeTopologyConnection(edgeFromSelect.value, edgeToSelect.value);
-    });
     clearEdgesButton.addEventListener("click", () => {
       if (edges.length === 0) {
-        edgeBuilderStatus.textContent = "当前没有可清空的边。";
+        setMatrixStatus("当前没有可清空的边。", true);
         return;
       }
       recordTopologyHistory();
@@ -5389,30 +5761,43 @@
       recomputeAfterTopologyChange("已清空全部边，可通过图上连线重新搭建拓扑。");
     });
 
+    adjacencyMatrixGrid.addEventListener("click", (event) => {
+      const cell = event.target.closest("[data-matrix-row][data-matrix-column]");
+      if (!cell || cell.disabled) return;
+      toggleMatrixCell(
+        Number(cell.dataset.matrixRow),
+        Number(cell.dataset.matrixColumn)
+      );
+    });
     adjacencyMatrixInput.addEventListener("input", () => {
-      setMatrixStatus("矩阵已修改，点击“应用矩阵”后生效。");
+      renderAdjacencyMatrixGrid();
+      const parsed = parseAdjacencyMatrix(adjacencyMatrixInput.value);
+      if (parsed.error) {
+        setMatrixStatus(parsed.error, true);
+      } else {
+        setMatrixStatus(`矩阵已修改：${parsed.size} 阶，${parsed.pairs.length} 条有向边；点击“应用矩阵”后生效。`);
+      }
+    });
+    matrixEditor.addEventListener("keydown", (event) => {
+      if (!(event.ctrlKey || event.metaKey)) return;
+      const key = event.key.toLowerCase();
+      if (key === "c") {
+        event.preventDefault();
+        copyMatrixToClipboard();
+      }
+    });
+    matrixEditor.addEventListener("paste", (event) => {
+      const text = event.clipboardData?.getData("text/plain");
+      if (!text) return;
+      event.preventDefault();
+      applyMatrixText(text, "已从剪贴板读取");
+    });
+    matrixEditor.addEventListener("click", () => {
+      matrixPasteCapture.focus({ preventScroll: true });
     });
     fillMatrixButton.addEventListener("click", () => {
       syncAdjacencyMatrix();
       showToast("已读取当前拓扑");
-    });
-    importMatrixFileButton.addEventListener("click", () => matrixFileInput.click());
-    matrixFileInput.addEventListener("change", async () => {
-      const [file] = matrixFileInput.files;
-      if (!file) return;
-      if (file.size > 256 * 1024) {
-        setMatrixStatus("文件过大，请选择不超过 256 KB 的矩阵文件。", true);
-        matrixFileInput.value = "";
-        return;
-      }
-      try {
-        adjacencyMatrixInput.value = await file.text();
-        setMatrixStatus(`已导入 ${file.name}，点击“应用矩阵”后生效。`);
-      } catch {
-        setMatrixStatus("文件读取失败，请确认文件为文本格式。", true);
-      } finally {
-        matrixFileInput.value = "";
-      }
     });
     applyMatrixButton.addEventListener("click", applyAdjacencyMatrix);
     applyTopologyButton.addEventListener("click", applyTopologyConfiguration);
