@@ -1,0 +1,5261 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="动态展示断边、节点移除和连接不确定性对零强制传播及强结构能控性的影响。">
+  <title>网络故障影响与强结构能控性实验台</title>
+  <style>
+    :root {
+      --page: #ffffff;
+      --surface: #ffffff;
+      --surface-soft: #f7f9fc;
+      --surface-blue: #f2f6ff;
+      --surface-green: #edfaf6;
+      --surface-red: #fff3f2;
+      --surface-amber: #fff9ea;
+      --ink: #142033;
+      --ink-2: #3d4a5f;
+      --muted: #68758a;
+      --muted-2: #8b97a9;
+      --line: #e3e8f0;
+      --line-strong: #ccd5e2;
+      --blue: #2457d6;
+      --blue-2: #4b7bec;
+      --blue-soft: #dce7ff;
+      --green: #0b8f75;
+      --green-soft: #d7f4eb;
+      --red: #cf4b43;
+      --red-soft: #ffe0dd;
+      --amber: #b97a08;
+      --amber-soft: #fff0c7;
+      --shadow: 0 16px 44px rgba(22, 35, 58, 0.08);
+      --radius-lg: 20px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+      --font-ui: "Microsoft YaHei UI", "HarmonyOS Sans SC", "Source Han Sans SC", "PingFang SC", sans-serif;
+      --font-display: "DengXian", "Microsoft YaHei UI", "PingFang SC", sans-serif;
+      --font-numeric: "Segoe UI Variable Display", "Aptos Display", "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      color-scheme: light;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-width: 0;
+      margin: 0;
+      color: var(--ink);
+      background: var(--page);
+      font-family: var(--font-ui);
+      font-size: 14px;
+      letter-spacing: 0.006em;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button {
+      color: inherit;
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    [tabindex="0"]:focus-visible {
+      outline: 3px solid rgba(36, 87, 214, 0.25);
+      outline-offset: 2px;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .topbar {
+      display: flex;
+      min-height: 72px;
+      padding: 0 28px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.96);
+    }
+
+    .brand {
+      display: flex;
+      min-width: 218px;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-mark {
+      position: relative;
+      display: grid;
+      width: 38px;
+      height: 38px;
+      flex: 0 0 auto;
+      place-items: center;
+      color: #fff;
+      background: var(--ink);
+      border-radius: 11px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .brand-mark::before,
+    .brand-mark::after {
+      position: absolute;
+      content: "";
+      background: #88a8ff;
+      border-radius: 999px;
+    }
+
+    .brand-mark::before {
+      width: 16px;
+      height: 2px;
+      transform: rotate(28deg);
+    }
+
+    .brand-mark::after {
+      width: 2px;
+      height: 15px;
+      transform: rotate(28deg);
+    }
+
+    .brand strong {
+      display: block;
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .brand small {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .mode-tabs {
+      display: flex;
+      padding: 4px;
+      align-items: center;
+      gap: 3px;
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+    }
+
+    .mode-tab {
+      display: inline-flex;
+      min-height: 38px;
+      padding: 0 15px;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      color: var(--muted);
+      background: transparent;
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+    }
+
+    .mode-tab svg {
+      width: 15px;
+      height: 15px;
+      flex: 0 0 auto;
+    }
+
+    .mode-tab:hover {
+      color: var(--ink);
+      background: #eef2f8;
+    }
+
+    .mode-tab[aria-selected="true"] {
+      color: #fff;
+      background: var(--blue);
+      box-shadow: 0 4px 12px rgba(36, 87, 214, 0.22);
+    }
+
+    .topbar-actions {
+      display: flex;
+      min-width: 218px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    #experimentLibraryButton {
+      display: none !important;
+    }
+
+    .btn {
+      display: inline-flex;
+      min-height: 38px;
+      padding: 0 14px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--ink-2);
+      background: #fff;
+      border: 1px solid var(--line-strong);
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+    }
+
+    .btn:hover {
+      color: var(--ink);
+      background: var(--surface-soft);
+      border-color: #b8c3d3;
+    }
+
+    .btn-primary {
+      color: #fff;
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+
+    .btn-primary:hover {
+      color: #fff;
+      background: #1d4bc2;
+      border-color: #1d4bc2;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border-color: transparent;
+    }
+
+    .btn-ghost:hover {
+      background: var(--surface-soft);
+      border-color: var(--line);
+    }
+
+    .btn svg {
+      width: 15px;
+      height: 15px;
+      flex: 0 0 auto;
+    }
+
+    .page {
+      width: min(100%, 1600px);
+      margin: 0 auto;
+      padding: 24px 28px 28px;
+    }
+
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 390px;
+      align-items: stretch;
+      gap: 18px;
+    }
+
+    .panel {
+      min-width: 0;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .graph-panel {
+      display: flex;
+      min-height: 690px;
+      flex-direction: column;
+    }
+
+    .panel-toolbar {
+      display: flex;
+      min-height: 76px;
+      padding: 17px 19px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-title {
+      min-width: 0;
+    }
+
+    .panel-title-row {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .panel-title-row h2 {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.015em;
+    }
+
+    .graph-status-chip {
+      display: inline-flex;
+      min-height: 22px;
+      padding: 0 8px;
+      align-items: center;
+      color: var(--blue);
+      background: var(--surface-blue);
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    .panel-title p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .toolbar-actions,
+    .inline-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toolbar-actions {
+      min-width: 0;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .history-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .icon-button {
+      width: 38px;
+      min-height: 38px;
+      padding: 0;
+    }
+
+    .layout-menu {
+      position: relative;
+    }
+
+    .layout-menu summary {
+      list-style: none;
+    }
+
+    .layout-menu summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .layout-popover {
+      position: absolute;
+      top: calc(100% + 6px);
+      right: 0;
+      z-index: 8;
+      display: grid;
+      width: 144px;
+      padding: 5px;
+      background: #fff;
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+      box-shadow: 0 12px 32px rgba(22, 35, 58, 0.14);
+      gap: 3px;
+    }
+
+    .layout-popover button {
+      min-height: 34px;
+      padding: 0 9px;
+      color: var(--ink-2);
+      background: transparent;
+      border: 0;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      text-align: left;
+    }
+
+    .layout-popover button:hover {
+      color: var(--blue);
+      background: var(--surface-blue);
+    }
+
+    .direction-switch {
+      display: none;
+      padding: 3px;
+      align-items: center;
+      gap: 2px;
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      border-radius: 9px;
+    }
+
+    .direction-switch.is-visible {
+      display: flex;
+    }
+
+    .direction-button {
+      min-height: 30px;
+      padding: 0 10px;
+      color: var(--muted);
+      background: transparent;
+      border: 0;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .direction-button[aria-pressed="true"] {
+      color: var(--blue);
+      background: #fff;
+      box-shadow: 0 1px 5px rgba(20, 32, 51, 0.09);
+    }
+
+    .connect-button[aria-pressed="true"] {
+      color: var(--blue);
+      background: var(--surface-blue);
+      border-color: #b7caf8;
+    }
+
+    .graph-stage {
+      position: relative;
+      flex: 1 1 auto;
+      min-height: 430px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .graph-phase-badge {
+      position: absolute;
+      top: 14px;
+      left: 16px;
+      z-index: 3;
+      display: inline-flex;
+      min-height: 27px;
+      padding: 0 10px;
+      align-items: center;
+      gap: 7px;
+      color: var(--ink-2);
+      background: rgba(255, 255, 255, 0.94);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      box-shadow: 0 3px 11px rgba(20, 32, 51, 0.06);
+      font-size: 10px;
+      font-weight: 600;
+      backdrop-filter: blur(8px);
+    }
+
+    .graph-phase-badge i {
+      width: 7px;
+      height: 7px;
+      background: var(--blue);
+      border-radius: 50%;
+    }
+
+    .focus-chip {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      z-index: 3;
+      display: inline-flex;
+      min-height: 27px;
+      padding: 0 10px;
+      align-items: center;
+      gap: 8px;
+      color: var(--blue);
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid #b7caf8;
+      border-radius: 999px;
+      box-shadow: 0 3px 11px rgba(20, 32, 51, 0.06);
+      cursor: pointer;
+      font-size: 10px;
+      font-weight: 600;
+      backdrop-filter: blur(8px);
+    }
+
+    .focus-chip b {
+      font-family: var(--font-numeric);
+      font-size: 11px;
+    }
+
+    .focus-chip[hidden] {
+      display: none;
+    }
+
+    .graph-phase-badge.is-result i {
+      background: var(--green);
+    }
+
+    .graph-phase-badge.is-failed i {
+      background: var(--red);
+    }
+
+    .graph-scroll {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      min-height: 430px;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .network-svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 560px;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .network-svg text {
+      font-family: var(--font-ui);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .edge-line {
+      fill: none;
+      stroke: #000;
+      stroke-width: 3.2;
+      stroke-linecap: butt;
+      vector-effect: non-scaling-stroke;
+      transition: stroke 180ms ease, opacity 180ms ease, stroke-width 180ms ease;
+    }
+
+    .edge-line.edge-removed {
+      stroke: var(--red);
+      stroke-width: 2.5;
+      stroke-dasharray: 8 5;
+    }
+
+    .edge-line.edge-uncertain {
+      stroke: var(--amber);
+      stroke-width: 2.5;
+      stroke-dasharray: 2 6;
+    }
+
+    .edge-line.edge-unavailable {
+      stroke: #c8d0dc;
+      stroke-dasharray: 4 6;
+      opacity: 0.7;
+    }
+
+    .edge-line.edge-blocked {
+      stroke: var(--red);
+      stroke-width: 2.5;
+      stroke-dasharray: 8 5;
+    }
+
+    .edge-line.edge-used {
+      stroke: #000;
+      stroke-width: 4;
+      stroke-dasharray: 9 6;
+      animation: edgeFlow 650ms linear infinite;
+    }
+
+    @keyframes edgeFlow {
+      to {
+        stroke-dashoffset: -15;
+      }
+    }
+
+    .edge-hit {
+      fill: none;
+      stroke: transparent;
+      stroke-width: 17;
+      pointer-events: stroke;
+      cursor: pointer;
+    }
+
+    .edge-hit[tabindex="0"]:focus {
+      stroke: rgba(36, 87, 214, 0.22);
+    }
+
+    .edge-group.is-dimmed {
+      opacity: 0.16;
+    }
+
+    .fault-mark-circle {
+      fill: #fff;
+      stroke: currentColor;
+      stroke-width: 1.5;
+    }
+
+    .fault-mark {
+      color: var(--red);
+      pointer-events: none;
+    }
+
+    .fault-mark.is-uncertain {
+      color: var(--amber);
+    }
+
+    .fault-mark-label {
+      fill: currentColor;
+      stroke: #fff;
+      stroke-width: 4px;
+      stroke-linejoin: round;
+      paint-order: stroke fill;
+      font-size: 14px;
+      font-weight: 700;
+      text-anchor: middle;
+      dominant-baseline: middle;
+    }
+
+    .node-group {
+      cursor: grab;
+      transition: opacity 160ms ease;
+    }
+
+    .node-group:active,
+    .node-group.is-dragging {
+      cursor: grabbing;
+    }
+
+    .node-group [data-node-drag] {
+      cursor: inherit;
+    }
+
+    .node-pulse {
+      fill: none;
+      stroke: transparent;
+      stroke-width: 2;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .node-body {
+      fill: #fff;
+      stroke: #000;
+      stroke-width: 2.4;
+      vector-effect: non-scaling-stroke;
+      transition: fill 180ms ease, stroke 180ms ease;
+    }
+
+    .network-svg .node-id {
+      fill: #000;
+      font-family: "Times New Roman", "STIX Two Text", serif;
+      font-size: 20px;
+      font-weight: 700;
+      text-anchor: middle;
+      dominant-baseline: middle;
+    }
+
+    .node-status {
+      fill: var(--muted);
+      stroke: #fff;
+      stroke-width: 4px;
+      stroke-linejoin: round;
+      paint-order: stroke fill;
+      font-size: 11px;
+      font-weight: 600;
+      text-anchor: middle;
+    }
+
+    .node-label-bg {
+      fill: #fff;
+    }
+
+    .node-group.is-colored .node-body {
+      fill: #000;
+      stroke: #000;
+    }
+
+    .node-group.is-colored .node-id {
+      fill: #fff;
+    }
+
+    .node-group.is-leader .node-body {
+      fill: #000;
+      stroke: #000;
+    }
+
+    .node-group.is-leader .node-id {
+      fill: #fff;
+    }
+
+    .node-group.is-blocked .node-body {
+      fill: #fff;
+      stroke: #000;
+      stroke-width: 2.4;
+    }
+
+    .node-group.is-blocked .node-id,
+    .node-group.is-blocked .node-status {
+      fill: var(--ink);
+    }
+
+    .node-group.is-uncertain .node-body {
+      fill: var(--amber-soft);
+      stroke: var(--amber);
+      stroke-width: 2.5;
+    }
+
+    .node-group.is-uncertain .node-id {
+      fill: var(--ink);
+    }
+
+    .node-group.is-removed {
+      opacity: 1;
+    }
+
+    .node-group.is-removed .node-body {
+      fill: var(--red);
+      stroke: #a93630;
+      stroke-width: 2.5;
+    }
+
+    .node-group.is-removed .node-id {
+      fill: #fff;
+    }
+
+    .node-group.is-removed .node-status {
+      fill: var(--red);
+    }
+
+    .node-group.is-removed .node-cross {
+      stroke: var(--red);
+    }
+
+    .network-svg .node-group:not(.is-removed):not(.is-uncertain) .node-body {
+      stroke: #000;
+      stroke-width: 2.4;
+    }
+
+    .removed-badge {
+      fill: #fff;
+      stroke: var(--red);
+      stroke-width: 1.5;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .node-group.is-connection-source .node-pulse {
+      stroke: var(--blue);
+      stroke-dasharray: 5 5;
+      animation: dashSpin 1s linear infinite;
+    }
+
+    .node-group.is-focus-anchor .node-pulse,
+    .node-group.is-focus-neighbor .node-pulse {
+      stroke: var(--blue);
+      stroke-width: 2.5;
+    }
+
+    .node-group.is-focus-anchor .node-pulse {
+      stroke-dasharray: 5 4;
+    }
+
+    .node-group.is-dimmed {
+      opacity: 0.2;
+    }
+
+    .node-group.is-newly-covered .node-pulse {
+      stroke: #000;
+      stroke-width: 3.2;
+      animation: nodePulse 620ms ease-out;
+    }
+
+    .node-group.is-newly-covered .node-body {
+      animation: nodeColorFlash 620ms ease-out;
+    }
+
+    .node-group.is-newly-covered .node-id {
+      animation: nodeIdFlash 620ms ease-out;
+    }
+
+    .node-group.is-blocked .node-pulse {
+      stroke: transparent;
+    }
+
+    .node-group.is-removed .node-pulse,
+    .node-group.is-uncertain .node-pulse {
+      stroke: transparent;
+    }
+
+    @keyframes nodePulse {
+      0% {
+        stroke-opacity: 0.9;
+        transform: scale(0.92);
+      }
+      100% {
+        stroke-opacity: 0;
+        transform: scale(1.35);
+      }
+    }
+
+    @keyframes nodeColorFlash {
+      0% {
+        fill: #fff;
+        stroke: #000;
+      }
+      100% {
+        fill: #000;
+        stroke: #000;
+      }
+    }
+
+    @keyframes nodeIdFlash {
+      from {
+        fill: #000;
+      }
+      to {
+        fill: #fff;
+      }
+    }
+
+    @keyframes dashSpin {
+      to {
+        stroke-dashoffset: -20;
+      }
+    }
+
+    .leader-badge {
+      fill: #fff;
+      stroke: var(--blue);
+      stroke-width: 1.5;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .leader-badge-text {
+      fill: var(--blue);
+      font-size: 9px;
+      font-weight: 700;
+      text-anchor: middle;
+      dominant-baseline: middle;
+    }
+
+    .node-cross {
+      fill: none;
+      stroke: #8b97a9;
+      stroke-width: 2;
+      stroke-linecap: round;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .node-fault-badge {
+      fill: var(--red);
+      stroke: #fff;
+      stroke-width: 1.5;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .node-fault-text {
+      fill: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      text-anchor: middle;
+      dominant-baseline: middle;
+    }
+
+    .graph-legend-row {
+      display: flex;
+      min-height: 37px;
+      padding: 8px 18px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .legend-items {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+
+    .legend-dot {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border: 2px solid var(--line-strong);
+      border-radius: 50%;
+    }
+
+    .legend-dot.is-covered {
+      background: var(--ink);
+      border-color: var(--ink);
+    }
+
+    .legend-dot.is-fault {
+      background: var(--red-soft);
+      border-color: var(--red);
+    }
+
+    .legend-dot.is-uncertain {
+      background: var(--amber-soft);
+      border-color: var(--amber);
+    }
+
+    .graph-hint {
+      margin: 0;
+      color: var(--muted-2);
+      font-size: 11px;
+      line-height: 1.4;
+      text-align: right;
+    }
+
+    .cause-strip {
+      display: grid;
+      padding: 13px 18px 15px;
+      grid-template-columns: minmax(0, 1fr) 21px minmax(0, 1fr) 21px minmax(0, 1.12fr);
+      align-items: stretch;
+      gap: 4px;
+      background: #fbfcfe;
+      border-top: 1px solid var(--line);
+    }
+
+    .cause-item {
+      min-width: 0;
+      padding: 9px 11px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+
+    .cause-item span {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted-2);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .cause-item strong {
+      display: block;
+      overflow: hidden;
+      color: var(--ink-2);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.45;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .cause-item small {
+      display: block;
+      margin-top: 3px;
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.35;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .cause-item.is-failed {
+      background: var(--surface-red);
+      border-color: #f4b9b4;
+    }
+
+    .cause-item.is-failed strong {
+      color: var(--red);
+    }
+
+    .cause-item.is-success {
+      background: var(--surface-green);
+      border-color: #a9ddcf;
+    }
+
+    .cause-item.is-success strong {
+      color: var(--green);
+    }
+
+    .cause-arrow {
+      display: grid;
+      place-items: center;
+      color: #aeb8c7;
+      font-size: 15px;
+    }
+
+    .analysis-panel {
+      display: flex;
+      min-height: 690px;
+      flex-direction: column;
+    }
+
+    .verdict-hero {
+      padding: 20px;
+      background: var(--surface-blue);
+      border-bottom: 1px solid var(--line);
+      transition: background 180ms ease;
+    }
+
+    .verdict-hero.is-ready {
+      background: var(--surface-soft);
+    }
+
+    .verdict-hero.is-success {
+      background: var(--surface-green);
+    }
+
+    .verdict-hero.is-failed {
+      background: var(--surface-red);
+    }
+
+    .verdict-topline {
+      display: flex;
+      margin-bottom: 12px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    .verdict-chip {
+      display: inline-flex;
+      min-height: 23px;
+      padding: 0 8px;
+      align-items: center;
+      color: var(--blue);
+      background: rgba(255, 255, 255, 0.72);
+      border-radius: 999px;
+      font-size: 9px;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+
+    .verdict-hero.is-success .verdict-chip {
+      color: var(--green);
+    }
+
+    .verdict-hero.is-failed .verdict-chip {
+      color: var(--red);
+    }
+
+    .verdict-hero h2 {
+      margin-bottom: 8px;
+      color: var(--blue);
+      font-family: var(--font-display);
+      font-size: clamp(24px, 2.1vw, 31px);
+      font-weight: 600;
+      line-height: 1.16;
+      letter-spacing: -0.035em;
+    }
+
+    .verdict-hero.is-success h2 {
+      color: var(--green);
+    }
+
+    .verdict-hero.is-ready h2 {
+      color: var(--ink-2);
+    }
+
+    .verdict-hero.is-failed h2 {
+      color: var(--red);
+    }
+
+    .verdict-hero p {
+      margin-bottom: 0;
+      color: var(--ink-2);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .analysis-section {
+      padding: 17px 19px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .analysis-section:last-child {
+      border-bottom: 0;
+    }
+
+    .section-label-row {
+      display: flex;
+      margin-bottom: 13px;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .section-label-row h3 {
+      margin: 0;
+      color: var(--ink-2);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .section-label-row p {
+      margin: 3px 0 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .rho-heading {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .rho-value {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .rho-value strong {
+      color: var(--blue);
+      font-family: var(--font-numeric);
+      font-size: 43px;
+      font-weight: 650;
+      font-variant-numeric: tabular-nums;
+      line-height: 0.9;
+      letter-spacing: -0.06em;
+    }
+
+    .rho-value span {
+      padding-bottom: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .rho-caption {
+      max-width: 185px;
+      color: var(--ink-2);
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1.45;
+      text-align: right;
+    }
+
+    .resilience-scale {
+      margin-top: 18px;
+      padding-top: 15px;
+      border-top: 1px solid var(--line);
+    }
+
+    .scale-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .scale-head strong {
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .scale-head strong.is-critical {
+      color: var(--red);
+    }
+
+    .scale-head strong.is-success {
+      color: var(--green);
+    }
+
+    .scale-plot {
+      position: relative;
+      height: 43px;
+      margin-top: 8px;
+    }
+
+    .scale-rail {
+      position: absolute;
+      top: 14px;
+      right: 0;
+      left: 0;
+      height: 10px;
+      overflow: hidden;
+      background: var(--red-soft);
+      border-radius: 999px;
+    }
+
+    .scale-safe-zone {
+      display: block;
+      width: 0;
+      height: 100%;
+      background: var(--green);
+      border-radius: inherit;
+      transition: width 220ms ease;
+    }
+
+    .scale-threshold-marker {
+      position: absolute;
+      top: 5px;
+      bottom: 4px;
+      left: 0;
+      width: 2px;
+      background: var(--red);
+      border-radius: 999px;
+      transform: translateX(-50%);
+      transition: left 220ms ease;
+    }
+
+    .scale-current-marker {
+      position: absolute;
+      top: 9px;
+      left: 0;
+      width: 20px;
+      height: 20px;
+      background: var(--blue);
+      border: 3px solid #fff;
+      border-radius: 50%;
+      box-shadow: 0 1px 7px rgba(36, 87, 214, 0.28);
+      transform: translateX(-50%);
+      transition: left 220ms ease, background 160ms ease;
+    }
+
+    .scale-current-marker.is-critical {
+      background: var(--red);
+      box-shadow: 0 1px 7px rgba(207, 75, 67, 0.28);
+    }
+
+    .scale-current-marker.is-success {
+      background: var(--green);
+      box-shadow: 0 1px 7px rgba(11, 143, 117, 0.28);
+    }
+
+    .scale-axis {
+      position: relative;
+      height: 29px;
+      margin-top: 2px;
+    }
+
+    .scale-tick {
+      position: absolute;
+      top: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1px;
+      color: var(--muted);
+      font-size: 10px;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+      transform: translateX(-50%);
+    }
+
+    .scale-tick b {
+      color: var(--ink-2);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .scale-tick:first-child {
+      align-items: flex-start;
+      transform: translateX(0);
+    }
+
+    .scale-tick:last-child {
+      align-items: flex-end;
+      transform: translateX(-100%);
+    }
+
+    .scale-tick.is-critical b {
+      color: var(--red);
+    }
+
+    .rho-relation {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    .rho-relation strong {
+      color: var(--ink-2);
+      font-weight: 700;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1px;
+      overflow: hidden;
+      background: var(--line);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+    }
+
+    .stat-item {
+      min-width: 0;
+      padding: 10px;
+      background: #fff;
+    }
+
+    .stat-item span {
+      display: block;
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 600;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .stat-item strong {
+      display: block;
+      margin-top: 5px;
+      color: var(--ink);
+      font-family: var(--font-numeric);
+      font-size: 21px;
+      font-weight: 650;
+      font-variant-numeric: tabular-nums;
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+
+    .stat-item small {
+      display: block;
+      margin-top: 5px;
+      overflow: hidden;
+      color: var(--muted-2);
+      font-size: 9px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .coverage-row {
+      display: flex;
+      margin-top: 13px;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .coverage-row span {
+      flex: 0 0 auto;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .coverage-row strong {
+      flex: 0 0 auto;
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .coverage-track {
+      height: 6px;
+      flex: 1 1 auto;
+      overflow: hidden;
+      background: #e8edf4;
+      border-radius: 999px;
+    }
+
+    .coverage-track span {
+      display: block;
+      width: 0;
+      height: 100%;
+      background: var(--ink);
+      border-radius: inherit;
+      transition: width 350ms ease;
+    }
+
+    .set-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .set-row {
+      display: flex;
+      min-width: 0;
+      min-height: 32px;
+      padding: 7px 9px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--surface-soft);
+      border-radius: 8px;
+    }
+
+    .set-row span:first-child {
+      flex: 0 0 auto;
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .set-row code {
+      min-width: 0;
+      overflow: hidden;
+      color: var(--ink-2);
+      font-family: "Cascadia Mono", "Consolas", monospace;
+      font-size: 11px;
+      font-weight: 600;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .impact-reason {
+      margin: 0;
+      color: var(--ink-2);
+      font-size: 11px;
+      line-height: 1.62;
+    }
+
+    .impact-reason strong {
+      color: var(--red);
+      font-weight: 700;
+    }
+
+    .impact-reason.is-success strong {
+      color: var(--green);
+    }
+
+    .topology-dialog {
+      position: fixed;
+      inset: 0;
+      width: min(620px, calc(100vw - 28px));
+      max-height: calc(100vh - 32px);
+      margin: auto;
+      padding: 0;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 28px 90px rgba(20, 32, 51, 0.22);
+      overflow: hidden;
+    }
+
+    .topology-dialog::backdrop {
+      background: rgba(20, 32, 51, 0.08);
+      backdrop-filter: none;
+    }
+
+    .experiment-dialog {
+      width: min(680px, calc(100vw - 28px));
+    }
+
+    .experiment-dialog .dialog-header {
+      cursor: default;
+    }
+
+    .experiment-save-form {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      gap: 9px;
+    }
+
+    #saveExperimentAsButton[hidden] {
+      display: none;
+    }
+
+    .experiment-current {
+      margin: 0 0 9px;
+      color: var(--ink-2);
+      font-size: 10px;
+      font-weight: 600;
+      line-height: 1.5;
+    }
+
+    .experiment-name-input {
+      min-width: 0;
+      min-height: 38px;
+      padding: 0 11px;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid var(--line-strong);
+      border-radius: 9px;
+      font-size: 12px;
+    }
+
+    .experiment-name-input:focus {
+      border-color: var(--blue);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(45, 98, 215, 0.1);
+    }
+
+    .experiment-list {
+      display: grid;
+      margin-top: 10px;
+      border-top: 1px solid var(--line);
+    }
+
+    .experiment-item {
+      display: grid;
+      padding: 13px 2px;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .experiment-item.is-current {
+      background: linear-gradient(90deg, rgba(45, 98, 215, 0.055), transparent 72%);
+    }
+
+    .experiment-item-name {
+      margin: 0 0 5px;
+      overflow: hidden;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 700;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .experiment-item-meta {
+      margin: 0;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.5;
+    }
+
+    .experiment-item-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .experiment-item-actions .btn {
+      min-height: 32px;
+      padding: 0 10px;
+      font-size: 10px;
+    }
+
+    .experiment-delete-confirm {
+      color: var(--red);
+      border-color: rgba(207, 75, 67, 0.38);
+    }
+
+    .experiment-rename-input {
+      width: 100%;
+    }
+
+    .experiment-empty {
+      padding: 28px 10px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.6;
+      text-align: center;
+    }
+
+    .experiment-dialog-footer {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .experiment-history-list {
+      display: grid;
+      margin-top: 10px;
+      border-top: 1px solid var(--line);
+    }
+
+    .experiment-version {
+      display: grid;
+      padding: 10px 2px;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .experiment-version-title {
+      margin: 0 0 4px;
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .dialog-shell {
+      display: flex;
+      max-height: calc(100vh - 34px);
+      flex-direction: column;
+    }
+
+    .dialog-header {
+      display: flex;
+      padding: 18px 20px 15px;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid var(--line);
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .topology-dialog.is-dragging .dialog-header {
+      cursor: grabbing;
+    }
+
+    .dialog-header h2 {
+      margin-bottom: 5px;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+
+    .dialog-header p {
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .dialog-close {
+      display: grid;
+      width: 32px;
+      height: 32px;
+      flex: 0 0 auto;
+      place-items: center;
+      color: var(--muted);
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .dialog-body {
+      padding: 18px 20px;
+      overflow-y: auto;
+    }
+
+    .dialog-section + .dialog-section {
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+
+    .dialog-section-head {
+      display: flex;
+      margin-bottom: 10px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .dialog-section-head h3 {
+      margin: 0;
+      color: var(--ink-2);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .dialog-section-head span {
+      color: var(--muted);
+      font-size: 9px;
+      line-height: 1.4;
+      text-align: right;
+    }
+
+    .form-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .field-label {
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .number-input,
+    .edge-select {
+      min-height: 38px;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      font-size: 12px;
+    }
+
+    .number-input {
+      width: 76px;
+      padding: 0 10px;
+    }
+
+    .edge-select {
+      min-width: 0;
+      flex: 1 1 0;
+      padding: 0 9px;
+    }
+
+    .leader-picker {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .leader-node {
+      display: grid;
+      width: 36px;
+      height: 36px;
+      place-items: center;
+      color: var(--muted);
+      background: #fff;
+      border: 1px solid var(--line-strong);
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .leader-node:hover {
+      border-color: #91a8df;
+    }
+
+    .leader-node[aria-pressed="true"] {
+      color: #fff;
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+
+    .dialog-status {
+      min-height: 17px;
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 9px;
+      line-height: 1.45;
+    }
+
+    .dialog-status.is-error {
+      color: var(--red);
+    }
+
+    .dialog-edge-builder {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr);
+      align-items: center;
+      gap: 7px;
+    }
+
+    .dialog-edge-arrow {
+      color: var(--muted-2);
+      text-align: center;
+    }
+
+    .dialog-button-row {
+      display: flex;
+      margin-top: 9px;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dialog-button-row .btn {
+      min-height: 34px;
+      font-size: 11px;
+    }
+
+    .matrix-toolbar {
+      display: flex;
+      margin-bottom: 9px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .matrix-toolbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .matrix-toolbar .btn {
+      min-height: 34px;
+      font-size: 11px;
+    }
+
+    .matrix-format {
+      margin: 0;
+      color: var(--muted);
+      font-size: 10px;
+      line-height: 1.5;
+    }
+
+    .matrix-input {
+      display: block;
+      width: 100%;
+      min-height: 142px;
+      padding: 12px 14px;
+      resize: vertical;
+      color: var(--ink);
+      background: #fff;
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+      outline: none;
+      font-family: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.65;
+      tab-size: 2;
+    }
+
+    .matrix-input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(45, 98, 215, 0.1);
+    }
+
+    .matrix-input.has-error {
+      border-color: var(--red);
+      box-shadow: 0 0 0 3px rgba(207, 75, 67, 0.09);
+    }
+
+    .matrix-actions {
+      display: flex;
+      margin-top: 9px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .matrix-actions .btn {
+      min-height: 34px;
+      font-size: 11px;
+    }
+
+    .dialog-footer {
+      display: flex;
+      padding: 13px 20px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: #fbfcfe;
+      border-top: 1px solid var(--line);
+    }
+
+    .dialog-footer-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .dialog-footer .btn {
+      min-height: 36px;
+      font-size: 11px;
+    }
+
+    .page-footer {
+      display: flex;
+      padding: 13px 3px 0;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      color: var(--muted-2);
+      font-size: 10px;
+      line-height: 1.45;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      z-index: 100;
+      max-width: min(420px, calc(100vw - 32px));
+      padding: 9px 14px;
+      color: #fff;
+      background: rgba(20, 32, 51, 0.94);
+      border-radius: 999px;
+      box-shadow: 0 10px 30px rgba(20, 32, 51, 0.2);
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, 8px);
+      transition: opacity 160ms ease, transform 160ms ease;
+      font-size: 11px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .toast.is-visible {
+      opacity: 1;
+      transform: translate(-50%, 0);
+    }
+
+    @media (max-width: 1360px) {
+      .panel-toolbar {
+        align-items: flex-start;
+        flex-wrap: wrap;
+      }
+
+      .panel-title {
+        flex: 0 0 100%;
+      }
+
+      .toolbar-actions {
+        width: 100%;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+      }
+    }
+
+    @media (max-width: 1180px) {
+      .topbar {
+        flex-wrap: wrap;
+        padding-top: 12px;
+        padding-bottom: 12px;
+      }
+
+      .brand,
+      .topbar-actions {
+        min-width: 0;
+      }
+
+      .mode-tabs {
+        order: 3;
+        width: 100%;
+        overflow-x: auto;
+      }
+
+      .mode-tab {
+        flex: 1 0 auto;
+      }
+
+      .workspace {
+        grid-template-columns: minmax(0, 1fr) 350px;
+      }
+    }
+
+    @media (max-width: 980px) {
+      .page {
+        padding-right: 18px;
+        padding-left: 18px;
+      }
+
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .graph-panel,
+      .analysis-panel {
+        min-height: 0;
+      }
+
+      .analysis-panel {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .verdict-hero {
+        grid-column: 1 / -1;
+      }
+
+      .analysis-section {
+        border-right: 1px solid var(--line);
+      }
+
+      .analysis-section:nth-child(2n + 1) {
+        border-right: 0;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .topbar {
+        padding-right: 14px;
+        padding-left: 14px;
+        gap: 10px;
+      }
+
+      .topbar-actions {
+        display: flex;
+        flex: 0 0 auto;
+        flex-wrap: wrap;
+      }
+
+      .topbar-actions .btn {
+        min-height: 34px;
+        padding: 0 10px;
+        font-size: 11px;
+      }
+
+      .brand {
+        min-width: 0;
+      }
+
+      .mode-tabs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .mode-tab {
+        min-width: 0;
+        padding: 0 9px;
+        font-size: 11px;
+      }
+
+      .page {
+        padding: 18px 12px 22px;
+      }
+
+      .experiment-save-form,
+      .experiment-item {
+        grid-template-columns: 1fr;
+      }
+
+      .experiment-item-actions {
+        flex-wrap: wrap;
+      }
+
+      .panel-toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .toolbar-actions {
+        width: 100%;
+        flex-wrap: wrap;
+      }
+
+      .toolbar-actions .btn {
+        flex: 1 1 auto;
+      }
+
+      .direction-switch {
+        order: 3;
+        width: 100%;
+      }
+
+      .direction-button {
+        flex: 1 1 50%;
+      }
+
+      .graph-stage,
+      .graph-scroll {
+        min-height: 390px;
+      }
+
+      .graph-scroll {
+        justify-content: flex-start;
+        overflow-x: auto;
+      }
+
+      .network-svg {
+        min-width: 620px;
+      }
+
+      .graph-legend-row {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .graph-hint {
+        text-align: left;
+      }
+
+      .cause-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .cause-arrow {
+        height: 15px;
+        transform: rotate(90deg);
+      }
+
+      .analysis-panel {
+        display: block;
+      }
+
+      .analysis-section,
+      .analysis-section:nth-child(2n + 1) {
+        border-right: 0;
+      }
+
+      .dialog-edge-builder {
+        grid-template-columns: 1fr;
+      }
+
+      .dialog-edge-arrow {
+        transform: rotate(90deg);
+      }
+
+      .dialog-footer {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .dialog-footer-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .page-footer {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand" aria-label="网络韧性实验台">
+      <div class="brand-mark" aria-hidden="true">ρ</div>
+      <div>
+        <strong>网络韧性实验台</strong>
+        <small>Topology resilience</small>
+      </div>
+    </div>
+
+    <div class="mode-tabs" role="tablist" aria-label="选择故障类型">
+      <button class="mode-tab" type="button" role="tab" aria-selected="true" data-mode="edge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+          <path d="M5 17 19 7"></path>
+          <path d="m14.7 7.8 3.2 7.5M6.1 8.7l3.2 7.5"></path>
+        </svg>
+        边移除
+      </button>
+      <button class="mode-tab" type="button" role="tab" aria-selected="false" data-mode="node">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+          <circle cx="12" cy="12" r="7.5"></circle>
+          <path d="m9 9 6 6m0-6-6 6"></path>
+        </svg>
+        节点移除
+      </button>
+      <button class="mode-tab" type="button" role="tab" aria-selected="false" data-mode="eu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+          <path d="M5 17 19 7"></path>
+          <path d="M8 9h2m4 0h2M8 15h3m2 0h3" stroke-dasharray="2 2"></path>
+        </svg>
+        边不确定
+      </button>
+      <button class="mode-tab" type="button" role="tab" aria-selected="false" data-mode="nu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+          <circle cx="12" cy="12" r="7.5" stroke-dasharray="3 3"></circle>
+          <path d="M9.5 9.5c.3-1.5 1.5-2.2 3-2.2 1.6 0 2.7.9 2.7 2.1 0 1.1-.7 1.7-2.2 2.5-1 .5-1.3 1-1.3 2.1M12 17.2v.1"></path>
+        </svg>
+        节点不确定
+      </button>
+    </div>
+
+    <div class="topbar-actions">
+      <button class="btn" id="experimentLibraryButton" type="button" hidden aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+          <path d="M4 7.5h6l1.7 2H20v8.7a1.8 1.8 0 0 1-1.8 1.8H5.8A1.8 1.8 0 0 1 4 18.2Z"></path>
+          <path d="M4 7.5V5.8A1.8 1.8 0 0 1 5.8 4h4.1l1.5 1.8H18a2 2 0 0 1 2 2v1.7"></path>
+        </svg>
+        实验库
+      </button>
+      <button class="btn" id="editTopologyButton" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+          <circle cx="6" cy="12" r="2.4"></circle>
+          <circle cx="18" cy="6" r="2.4"></circle>
+          <circle cx="18" cy="18" r="2.4"></circle>
+          <path d="m8.2 10.8 7.4-3.5M8.2 13.2l7.4 3.5"></path>
+        </svg>
+        拓扑设置
+      </button>
+    </div>
+  </header>
+
+  <main class="page">
+    <h1 class="sr-only">网络故障影响实验台</h1>
+
+    <div class="workspace">
+      <section class="panel graph-panel" aria-labelledby="graphPanelTitle">
+        <header class="panel-toolbar">
+          <div class="panel-title">
+            <div class="panel-title-row">
+              <h2 id="graphPanelTitle">网络拓扑</h2>
+              <span class="graph-status-chip" id="scenarioTitle" aria-live="polite">边移除 · R₁</span>
+            </div>
+            <p id="networkMeta">7 节点 · 10 条边 · |Z| = 3</p>
+          </div>
+
+          <div class="toolbar-actions">
+            <div class="direction-switch" id="directionSwitch" role="group" aria-label="图上连线方向">
+              <button class="direction-button" type="button" data-direction="single" aria-pressed="true" aria-label="创建有向连接">有向</button>
+              <button class="direction-button" type="button" data-direction="both" aria-pressed="false" aria-label="创建无向连接，展开为两条反向有向边">无向</button>
+            </div>
+            <button class="btn connect-button" id="connectButton" type="button" aria-pressed="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+                <path d="M5 17 19 7"></path>
+                <path d="m14 7 5 0 0 5"></path>
+              </svg>
+              图上连线
+            </button>
+            <button class="btn connect-button" id="leaderModeButton" type="button" aria-pressed="false">
+              <span aria-hidden="true">L</span>
+              设置领导者
+            </button>
+            <details class="layout-menu" id="layoutMenu">
+              <summary class="btn">布局</summary>
+              <div class="layout-popover">
+                <button id="autoLayoutButton" type="button">自动排布</button>
+                <button id="resetPositionsButton" type="button">恢复初始位置</button>
+                <button id="fitCanvasButton" type="button" aria-pressed="false">适应画布</button>
+              </div>
+            </details>
+            <div class="history-actions" role="group" aria-label="故障与导出操作">
+              <button class="btn" id="clearFaultsButton" type="button" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+                  <path d="M5 5 19 19"></path>
+                  <path d="M19 5 5 19"></path>
+                </svg>
+                清除故障
+              </button>
+              <button class="btn icon-button" id="exportPngButton" type="button" aria-label="导出当前拓扑 PNG" data-tooltip="导出 PNG">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+                  <path d="M12 3v12"></path>
+                  <path d="m7 10 5 5 5-5"></path>
+                  <path d="M5 19h14"></path>
+                </svg>
+              </button>
+            </div>
+            <button class="btn" id="resetPlaybackButton" type="button" aria-label="回到播放影响前" disabled>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+                <path d="M9 7 4 12l5 5"></path>
+                <path d="M5 12h8a6 6 0 0 1 6 6"></path>
+              </svg>
+              <span>回到播放前</span>
+            </button>
+            <button class="btn btn-primary" id="replayButton" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" aria-hidden="true">
+                <path d="M3.8 12a8.2 8.2 0 1 0 2.7-6.1L3.8 8.6"></path>
+                <path d="M3.8 3.7v4.9h4.9"></path>
+              </svg>
+              <span id="replayButtonText">播放影响</span>
+            </button>
+          </div>
+        </header>
+
+        <div class="graph-stage">
+          <div class="graph-phase-badge" id="graphPhaseBadge">
+            <i aria-hidden="true"></i>
+            <span>正在注入故障</span>
+          </div>
+          <button class="focus-chip" id="focusClearButton" type="button" hidden>
+            <span>聚焦节点 <b id="focusNodeLabel">4</b></span>
+            <span aria-hidden="true">×</span>
+          </button>
+
+          <div class="graph-scroll">
+            <svg class="network-svg" id="networkSvg" viewBox="0 0 760 510" role="img" aria-labelledby="networkTitle networkDesc">
+              <title id="networkTitle">网络拓扑故障影响动画</title>
+              <desc id="networkDesc">展示故障边或节点、零强制传播路径、最终覆盖节点和未覆盖节点。</desc>
+              <defs>
+                <marker id="arrowNormal" viewBox="0 0 12 10" refX="10" refY="5" markerWidth="20" markerHeight="17" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+                  <path d="M0,0 12,5 0,10 2.4,5Z" fill="#000"></path>
+                </marker>
+                <marker id="arrowUsed" viewBox="0 0 12 10" refX="10" refY="5" markerWidth="21" markerHeight="18" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+                  <path d="M0,0 12,5 0,10 2.4,5Z" fill="#000"></path>
+                </marker>
+                <marker id="arrowRemoved" viewBox="0 0 12 10" refX="10" refY="5" markerWidth="20" markerHeight="17" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+                  <path d="M0,0 12,5 0,10 2.4,5Z" fill="#cf4b43"></path>
+                </marker>
+                <marker id="arrowUncertain" viewBox="0 0 12 10" refX="10" refY="5" markerWidth="20" markerHeight="17" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+                  <path d="M0,0 12,5 0,10 2.4,5Z" fill="#b97a08"></path>
+                </marker>
+                <marker id="arrowOff" viewBox="0 0 12 10" refX="10" refY="5" markerWidth="20" markerHeight="17" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+                  <path d="M0,0 12,5 0,10 2.4,5Z" fill="#c8d0dc"></path>
+                </marker>
+              </defs>
+              <g id="edgeLayer"></g>
+              <g id="nodeLayer"></g>
+            </svg>
+          </div>
+        </div>
+
+        <div class="graph-legend-row">
+          <div class="legend-items" aria-label="拓扑图图例">
+            <span class="legend-item"><i class="legend-dot is-covered"></i>已覆盖</span>
+            <span class="legend-item"><i class="legend-dot"></i>未覆盖</span>
+            <span class="legend-item"><i class="legend-dot is-fault"></i>故障 / 中断</span>
+            <span class="legend-item"><i class="legend-dot is-uncertain"></i>不确定性</span>
+          </div>
+          <p class="graph-hint" id="graphHint">拖动节点；点击边注入故障</p>
+        </div>
+
+        <div class="cause-strip" aria-label="故障影响因果链">
+          <div class="cause-item">
+            <span>01 · 故障注入</span>
+            <strong id="causeFaultText">移除 2 条边</strong>
+            <small id="causeFaultSet">{(1,4), (3,5)}</small>
+          </div>
+          <div class="cause-arrow" aria-hidden="true">→</div>
+          <div class="cause-item">
+            <span>02 · 传播结果</span>
+            <strong id="causeDerivedText">D(G,Z) = {1,2,3}</strong>
+            <small id="causeCoverageText">覆盖 3/7</small>
+          </div>
+          <div class="cause-arrow" aria-hidden="true">→</div>
+          <div class="cause-item" id="causeVerdictItem">
+            <span>03 · 控制判定</span>
+            <strong id="causeVerdictText">正在计算</strong>
+            <small id="causeVerdictDetail">等待结果</small>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel analysis-panel" aria-label="故障影响分析">
+        <section class="verdict-hero" id="verdictHero">
+          <div class="verdict-topline">
+            <span>Structural controllability</span>
+            <span class="verdict-chip" id="verdictChip">计算中</span>
+          </div>
+          <h2 id="statusTitle" aria-live="polite">正在分析故障影响</h2>
+          <p id="statusSubtitle">正在检查节点覆盖。</p>
+        </section>
+
+        <section class="analysis-section" aria-labelledby="rhoTitle">
+          <div class="section-label-row">
+            <div>
+              <h3 id="rhoTitle">统一韧性指标</h3>
+            </div>
+          </div>
+
+          <div class="rho-heading">
+            <div class="rho-value">
+              <strong id="rhoValue">1</strong>
+              <span>ρ(G,Z)</span>
+            </div>
+            <div class="rho-caption" id="rhoSummary">可承受任意 ≤1 个故障</div>
+          </div>
+
+          <div class="resilience-scale" id="resilienceScale" role="img" aria-label="韧性指标刻度">
+            <div class="scale-head">
+              <span>故障规模位置</span>
+              <strong id="scaleCurrentValue">当前 2</strong>
+            </div>
+            <div class="scale-plot">
+              <div class="scale-rail">
+                <span class="scale-safe-zone" id="scaleSafeZone"></span>
+              </div>
+              <span class="scale-threshold-marker" id="scaleThresholdMarker" aria-hidden="true"></span>
+              <span class="scale-current-marker" id="scaleCurrentMarker" aria-hidden="true"></span>
+            </div>
+            <div class="scale-axis" aria-hidden="true">
+              <span class="scale-tick" id="scaleTickZero"><b>0</b></span>
+              <span class="scale-tick" id="scaleTickRho"><small>ρ</small><b>1</b></span>
+              <span class="scale-tick is-critical" id="scaleTickBoundary"><small>ρ+1</small><b>2</b></span>
+              <span class="scale-tick" id="scaleTickMax"><small>上限</small><b>3</b></span>
+            </div>
+          </div>
+
+          <p class="rho-relation" id="rhoRelation">正在计算统一韧性边界。</p>
+        </section>
+
+        <section class="analysis-section" aria-labelledby="impactMetricsTitle">
+          <div class="section-label-row">
+            <div>
+              <h3 id="impactMetricsTitle">当前故障影响</h3>
+            </div>
+          </div>
+
+          <div class="stat-grid">
+            <div class="stat-item">
+              <span>故障规模</span>
+              <strong id="faultSize">2</strong>
+              <small>个故障元素</small>
+            </div>
+            <div class="stat-item">
+              <span>派生覆盖</span>
+              <strong id="derivedCount">3/7</strong>
+              <small>节点进入 D(G,Z)</small>
+            </div>
+            <div class="stat-item">
+              <span>临界规模</span>
+              <strong id="criticalSize">2</strong>
+              <small>ρ + 1</small>
+            </div>
+          </div>
+
+          <div class="coverage-row">
+            <span>传播覆盖率</span>
+            <div class="coverage-track" role="progressbar" aria-label="传播覆盖率" aria-valuemin="0" aria-valuemax="100" aria-valuenow="43">
+              <span id="coverageBar"></span>
+            </div>
+            <strong id="coverageText">43%</strong>
+          </div>
+        </section>
+
+        <section class="analysis-section" aria-label="故障集合与派生集合">
+          <div class="set-list">
+            <div class="set-row">
+              <span id="faultSetLabel">故障集合 R</span>
+              <code id="faultSetText">{(1,4), (3,5)}</code>
+            </div>
+            <div class="set-row">
+              <span>派生集合 D(G,Z)</span>
+              <code id="derivedSetText">{1,2,3}</code>
+            </div>
+          </div>
+        </section>
+
+        <section class="analysis-section">
+          <p class="impact-reason" id="impactReason" aria-live="polite">
+            故障边被永久删除，依赖这些边的唯一强制通道随之消失。
+          </p>
+        </section>
+      </aside>
+    </div>
+
+    <footer class="page-footer">
+      <span>网络故障影响实验台</span>
+      <span>默认示例：7 节点 · 10 条边 · Z = {1,2,3}</span>
+    </footer>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <dialog class="topology-dialog" id="topologyDialog" aria-labelledby="topologyDialogTitle">
+    <div class="dialog-shell">
+      <header class="dialog-header">
+        <div>
+          <h2 id="topologyDialogTitle">拓扑与领导者设置</h2>
+          <p>拖动标题栏移动窗口；调整节点、领导者与连接后自动重新计算。</p>
+        </div>
+        <button class="dialog-close" id="closeTopologyButton" type="button" aria-label="关闭拓扑设置">×</button>
+      </header>
+
+      <div class="dialog-body">
+        <section class="dialog-section">
+          <div class="dialog-section-head">
+            <h3>节点与领导者</h3>
+            <span>至少保留 1 个领导者</span>
+          </div>
+          <div class="form-row">
+            <label class="field-label" for="nodeCountInput">节点数量</label>
+            <input class="number-input" id="nodeCountInput" type="number" min="4" max="10" step="1" value="7" inputmode="numeric">
+            <span class="dialog-status" id="topologySummary">当前：7 个节点，10 条有向边</span>
+          </div>
+          <p class="dialog-status" id="leaderStatus">已选择 3 个领导者</p>
+          <div class="leader-picker" id="leaderPicker" role="group" aria-label="选择领导者节点"></div>
+        </section>
+
+        <section class="dialog-section">
+          <div class="dialog-section-head">
+            <h3>自主连接边</h3>
+            <span>无向连接会展开为两条反向有向边</span>
+          </div>
+          <div class="inline-actions" style="margin-bottom: 9px">
+            <div class="direction-switch is-visible" role="group" aria-label="连接方向">
+              <button class="direction-button" type="button" data-direction="single" aria-pressed="true" aria-label="创建有向连接">有向</button>
+              <button class="direction-button" type="button" data-direction="both" aria-pressed="false" aria-label="创建无向连接，展开为两条反向有向边">无向</button>
+            </div>
+          </div>
+          <div class="dialog-edge-builder">
+            <select class="edge-select" id="edgeFromSelect" aria-label="边起点"></select>
+            <span class="dialog-edge-arrow" aria-hidden="true">→</span>
+            <select class="edge-select" id="edgeToSelect" aria-label="边终点"></select>
+          </div>
+          <div class="dialog-button-row">
+            <button class="btn btn-primary" id="addEdgeButton" type="button">添加连接</button>
+            <button class="btn" id="removeEdgeButton" type="button">删除连接</button>
+            <button class="btn btn-ghost" id="clearEdgesButton" type="button">清空全部边</button>
+          </div>
+          <p class="dialog-status" id="edgeBuilderStatus">也可在拓扑图中直接连线。</p>
+        </section>
+
+        <section class="dialog-section">
+          <div class="dialog-section-head">
+            <h3>邻接矩阵接入</h3>
+            <span>a<sub>ij</sub> = 1 表示存在有向边 i → j</span>
+          </div>
+          <div class="matrix-toolbar">
+            <p class="matrix-format">每行一个节点，支持空格、逗号、分号或制表符分隔。</p>
+            <div class="matrix-toolbar-actions">
+              <input id="matrixFileInput" type="file" accept=".txt,.csv,text/plain,text/csv" hidden>
+              <button class="btn" id="importMatrixFileButton" type="button">导入 CSV / TXT</button>
+              <button class="btn" id="fillMatrixButton" type="button">读取当前拓扑</button>
+            </div>
+          </div>
+          <label class="sr-only" for="adjacencyMatrixInput">邻接矩阵</label>
+          <textarea
+            class="matrix-input"
+            id="adjacencyMatrixInput"
+            spellcheck="false"
+            aria-describedby="matrixStatus"
+            placeholder="0 1 0 0&#10;0 0 1 0&#10;0 0 0 1&#10;1 0 0 0"
+          ></textarea>
+          <div class="matrix-actions">
+            <p class="dialog-status" id="matrixStatus" role="status" aria-live="polite">可粘贴矩阵，或直接读取当前拓扑。</p>
+            <button class="btn btn-primary" id="applyMatrixButton" type="button">应用矩阵</button>
+          </div>
+        </section>
+      </div>
+
+      <footer class="dialog-footer">
+        <button class="btn btn-ghost" id="restoreSampleButton" type="button">恢复默认示例</button>
+        <div class="dialog-footer-actions">
+          <button class="btn" id="cancelTopologyButton" type="button">关闭</button>
+          <button class="btn btn-primary" id="applyTopologyButton" type="button">应用并查看影响</button>
+        </div>
+      </footer>
+    </div>
+  </dialog>
+
+  <dialog class="topology-dialog experiment-dialog" id="experimentDialog" aria-labelledby="experimentDialogTitle">
+    <div class="dialog-shell">
+      <header class="dialog-header">
+        <div>
+          <h2 id="experimentDialogTitle">实验库</h2>
+          <p>保存当前拓扑与故障状态，或打开已有实验继续分析。</p>
+        </div>
+        <button class="dialog-close" id="closeExperimentButton" type="button" aria-label="关闭实验库">×</button>
+      </header>
+
+      <div class="dialog-body">
+        <section class="dialog-section">
+          <div class="dialog-section-head">
+            <h3>保存当前实验</h3>
+            <span>包含节点位置、领导者、连接和故障</span>
+          </div>
+          <p class="experiment-current" id="currentExperimentLabel">当前未关联已保存实验</p>
+          <form class="experiment-save-form" id="saveExperimentForm">
+            <label class="sr-only" for="experimentNameInput">实验名称</label>
+            <input
+              class="experiment-name-input"
+              id="experimentNameInput"
+              type="text"
+              maxlength="80"
+              placeholder="例如：七节点边移除实验"
+              autocomplete="off"
+            >
+            <button class="btn btn-primary" id="saveExperimentButton" type="submit">保存实验</button>
+            <button class="btn" id="saveExperimentAsButton" type="button" hidden>另存为</button>
+          </form>
+          <p class="dialog-status" id="experimentLibraryStatus" role="status" aria-live="polite">
+            后端未连接时，请先运行本地服务。
+          </p>
+        </section>
+
+        <section class="dialog-section">
+          <div class="dialog-section-head">
+            <h3>已保存实验</h3>
+            <button class="btn" id="refreshExperimentsButton" type="button">刷新列表</button>
+          </div>
+          <div class="experiment-list" id="experimentList">
+            <p class="experiment-empty">正在读取实验列表…</p>
+          </div>
+        </section>
+
+        <section class="dialog-section" id="experimentHistorySection" hidden>
+          <div class="dialog-section-head">
+            <h3>历史版本 · <span id="experimentHistoryTitle"></span></h3>
+            <button class="btn" id="closeExperimentHistoryButton" type="button">关闭历史</button>
+          </div>
+          <div class="experiment-history-list" id="experimentHistoryList"></div>
+        </section>
+      </div>
+
+      <footer class="dialog-footer experiment-dialog-footer">
+        <button class="btn" id="exportBackupButton" type="button">导出完整备份</button>
+        <button class="btn" id="closeExperimentFooterButton" type="button">关闭</button>
+      </footer>
+    </div>
+  </dialog>
+
+  <script>
+    const SVG_WIDTH = 760;
+    const SVG_HEIGHT = 510;
+    const NODE_RADIUS = 31;
+    const TOPOLOGY_MIN_NODES = 4;
+    const TOPOLOGY_MAX_NODES = 10;
+
+    const defaultNodes = [
+      { id: 1, x: 112, y: 423, leader: true },
+      { id: 2, x: 300, y: 438, leader: true },
+      { id: 3, x: 488, y: 423, leader: true },
+      { id: 4, x: 196, y: 292 },
+      { id: 5, x: 386, y: 292 },
+      { id: 6, x: 228, y: 125 },
+      { id: 7, x: 370, y: 125 }
+    ];
+
+    const defaultPairs = [
+      [1, 4],
+      [2, 4],
+      [2, 5],
+      [3, 5],
+      [4, 5],
+      [5, 4],
+      [4, 6],
+      [5, 7],
+      [6, 7],
+      [7, 6]
+    ];
+
+    function normalizeLeaderSet(values, nodeCount) {
+      const normalized = new Set(
+        [...values]
+          .map(Number)
+          .filter((id) => Number.isInteger(id) && id >= 1 && id <= nodeCount)
+      );
+      if (normalized.size === 0) normalized.add(1);
+      return normalized;
+    }
+
+    function makeRowPositions(count, y, minX = 90, maxX = 670) {
+      if (count <= 0) return [];
+      if (count === 1) return [{ x: (minX + maxX) / 2, y }];
+      return Array.from({ length: count }, (_, index) => ({
+        x: minX + ((maxX - minX) * index) / (count - 1),
+        y
+      }));
+    }
+
+    function createGeneratedEdge(fromNode, toNode, curve = 0) {
+      const dx = toNode.x - fromNode.x;
+      const dy = toNode.y - fromNode.y;
+      const length = Math.hypot(dx, dy) || 1;
+      const ux = dx / length;
+      const uy = dy / length;
+      const startX = fromNode.x + ux * (NODE_RADIUS + 4);
+      const startY = fromNode.y + uy * (NODE_RADIUS + 4);
+      const endX = toNode.x - ux * (NODE_RADIUS + 7);
+      const endY = toNode.y - uy * (NODE_RADIUS + 7);
+      const midX = (startX + endX) / 2 - uy * curve;
+      const midY = (startY + endY) / 2 + ux * curve;
+      const path = Math.abs(curve) > 0.1
+        ? `M${startX.toFixed(1)},${startY.toFixed(1)} Q${midX.toFixed(1)},${midY.toFixed(1)} ${endX.toFixed(1)},${endY.toFixed(1)}`
+        : `M${startX.toFixed(1)},${startY.toFixed(1)} L${endX.toFixed(1)},${endY.toFixed(1)}`;
+      const labelX = Math.abs(curve) > 0.1
+        ? 0.25 * startX + 0.5 * midX + 0.25 * endX
+        : (startX + endX) / 2;
+      const labelY = Math.abs(curve) > 0.1
+        ? 0.25 * startY + 0.5 * midY + 0.25 * endY
+        : (startY + endY) / 2;
+
+      return {
+        id: `${fromNode.id}-${toNode.id}`,
+        from: fromNode.id,
+        to: toNode.id,
+        path,
+        label: `(${fromNode.id},${toNode.id})`,
+        lx: labelX,
+        ly: labelY,
+        samples: Array.from({ length: 13 }, (_, index) => {
+          const t = index / 12;
+          const inverse = 1 - t;
+          return {
+            x: inverse * inverse * startX + 2 * inverse * t * midX + t * t * endX,
+            y: inverse * inverse * startY + 2 * inverse * t * midY + t * t * endY
+          };
+        })
+      };
+    }
+
+    function sampleSegmentsCross(left, right) {
+      const orientation = (a, b, c) => (
+        (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x)
+      );
+      const crosses = (a, b, c, d) => {
+        const abC = orientation(a, b, c);
+        const abD = orientation(a, b, d);
+        const cdA = orientation(c, d, a);
+        const cdB = orientation(c, d, b);
+        return abC * abD < 0 && cdA * cdB < 0;
+      };
+
+      for (let leftIndex = 0; leftIndex < left.samples.length - 1; leftIndex++) {
+        for (let rightIndex = 0; rightIndex < right.samples.length - 1; rightIndex++) {
+          if (crosses(
+            left.samples[leftIndex],
+            left.samples[leftIndex + 1],
+            right.samples[rightIndex],
+            right.samples[rightIndex + 1]
+          )) return true;
+        }
+      }
+      return false;
+    }
+
+    function buildGeneratedEdges(nodeList, pairs, detectCrossings = true) {
+      const uniquePairs = [];
+      const seen = new Set();
+      pairs.forEach(([from, to]) => {
+        if (from === to) return;
+        const id = `${from}-${to}`;
+        if (seen.has(id)) return;
+        if (!nodeList.some((node) => node.id === from) || !nodeList.some((node) => node.id === to)) return;
+        seen.add(id);
+        uniquePairs.push([from, to]);
+      });
+
+      const reciprocalCurve = Math.min(
+        56,
+        32 + Math.max(0, nodeList.length - 7) * 2.5 + Math.max(0, uniquePairs.length - 10)
+      );
+      const drafts = uniquePairs.map(([from, to]) => {
+        const fromNode = nodeList.find((node) => node.id === from);
+        const toNode = nodeList.find((node) => node.id === to);
+        return {
+          from,
+          to,
+          fromNode,
+          toNode,
+          reciprocal: seen.has(`${to}-${from}`),
+          curve: seen.has(`${to}-${from}`) ? reciprocalCurve : 0
+        };
+      });
+
+      if (detectCrossings) {
+        for (let pass = 0; pass < 3; pass++) {
+          let adjusted = false;
+          for (let leftIndex = 0; leftIndex < drafts.length; leftIndex++) {
+            for (let rightIndex = leftIndex + 1; rightIndex < drafts.length; rightIndex++) {
+              const left = drafts[leftIndex];
+              const right = drafts[rightIndex];
+              if (
+                left.from === right.from ||
+                left.from === right.to ||
+                left.to === right.from ||
+                left.to === right.to
+              ) continue;
+              const leftEdge = createGeneratedEdge(left.fromNode, left.toNode, left.curve);
+              const rightEdge = createGeneratedEdge(right.fromNode, right.toNode, right.curve);
+              if (!sampleSegmentsCross(leftEdge, rightEdge)) continue;
+              const target = left.reciprocal
+                ? right
+                : right.reciprocal
+                  ? left
+                  : (leftIndex + pass) % 2 === 0
+                    ? left
+                    : right;
+              if (target.reciprocal && Math.abs(target.curve) > 0) continue;
+              const direction = (leftIndex + rightIndex + pass) % 2 === 0 ? 1 : -1;
+              target.curve = direction * (12 + pass * 5 + (uniquePairs.length % 4) * 2);
+              adjusted = true;
+            }
+          }
+          if (!adjusted) break;
+        }
+      }
+
+      return drafts.map((draft) => (
+        createGeneratedEdge(draft.fromNode, draft.toNode, draft.curve)
+      ));
+    }
+
+    function buildTopologyLayout(nodeCount, leaders, pairs = []) {
+      const nodeIds = Array.from({ length: nodeCount }, (_, index) => index + 1);
+      const adjacency = new Map(nodeIds.map((id) => [id, new Set()]));
+      pairs.forEach(([from, to]) => {
+        if (!adjacency.has(from) || !adjacency.has(to) || from === to) return;
+        adjacency.get(from).add(to);
+        adjacency.get(to).add(from);
+      });
+
+      const depths = new Map();
+      const queue = [];
+      const roots = [...leaders].filter((id) => adjacency.has(id)).sort((a, b) => a - b);
+      (roots.length ? roots : [1]).forEach((id) => {
+        depths.set(id, 0);
+        queue.push(id);
+      });
+      while (queue.length > 0) {
+        const current = queue.shift();
+        [...adjacency.get(current)].sort((a, b) => a - b).forEach((neighbor) => {
+          if (depths.has(neighbor)) return;
+          depths.set(neighbor, depths.get(current) + 1);
+          queue.push(neighbor);
+        });
+      }
+
+      const maxConnectedDepth = depths.size ? Math.max(...depths.values()) : 0;
+      const grouped = [];
+      nodeIds.forEach((id) => {
+        const depth = depths.get(id) ?? maxConnectedDepth + 1;
+        if (!grouped[depth]) grouped[depth] = [];
+        grouped[depth].push(id);
+      });
+      const layers = grouped.filter((layer) => layer && layer.length > 0);
+
+      const optimizeLayerOrder = (direction) => {
+        const start = direction === "down" ? 1 : layers.length - 2;
+        const end = direction === "down" ? layers.length : -1;
+        for (let index = start; direction === "down" ? index < end : index > end; index += direction === "down" ? 1 : -1) {
+          const neighborLayer = layers[index + (direction === "down" ? -1 : 1)];
+          const neighborPositions = new Map(neighborLayer.map((id, position) => [id, position]));
+          layers[index] = [...layers[index]].sort((left, right) => {
+            const leftNeighbors = [...adjacency.get(left)].filter((id) => neighborPositions.has(id));
+            const rightNeighbors = [...adjacency.get(right)].filter((id) => neighborPositions.has(id));
+            const center = (values) => values.length
+              ? values.reduce((sum, id) => sum + neighborPositions.get(id), 0) / values.length
+              : Infinity;
+            return center(leftNeighbors) - center(rightNeighbors) || left - right;
+          });
+        }
+      };
+
+      for (let pass = 0; pass < 4; pass++) {
+        optimizeLayerOrder("down");
+        optimizeLayerOrder("up");
+      }
+
+      const topY = 118;
+      const bottomY = 426;
+      const verticalStep = layers.length > 1
+        ? (bottomY - topY) / (layers.length - 1)
+        : 0;
+      const layoutNodes = [];
+      layers.forEach((layer, layerIndex) => {
+        const spacing = layer.length > 1
+          ? Math.max(88, Math.min(154, 624 / (layer.length - 1)))
+          : 0;
+        const startX = SVG_WIDTH / 2 - (spacing * (layer.length - 1)) / 2;
+        const y = layers.length === 1
+          ? (topY + bottomY) / 2
+          : bottomY - layerIndex * verticalStep;
+        layer.forEach((id, position) => {
+          layoutNodes.push({
+            id,
+            x: Math.round(startX + spacing * position),
+            y: Math.round(y),
+            leader: leaders.has(id)
+          });
+        });
+      });
+
+      return {
+        nodes: layoutNodes,
+        edges: buildGeneratedEdges(layoutNodes, pairs)
+      };
+    }
+
+    const modeInfo = {
+      edge: {
+        name: "边移除",
+        shortName: "故障边",
+        symbol: "R",
+        graphLabel: "确定性断边",
+        hint: "点击边添加或取消故障",
+        effect(count) {
+          return count ? `移除 ${count} 条边` : "未注入故障";
+        },
+        reason: "关键传播边中断。"
+      },
+      node: {
+        name: "节点移除",
+        shortName: "失效节点",
+        symbol: "S",
+        graphLabel: "确定性节点失效",
+        hint: "点击节点添加或取消故障",
+        effect(count) {
+          return count ? `移除 ${count} 个节点` : "未注入故障";
+        },
+        reason: "被删节点转为初始着色节点，其出边失效。"
+      },
+      eu: {
+        name: "边不确定",
+        shortName: "不确定边",
+        symbol: "R̃",
+        graphLabel: "连接存在性未知",
+        hint: "点击边标记为不确定",
+        effect(count) {
+          return count ? `${count} 条边变为不确定` : "未注入故障";
+        },
+        reason: "不确定边不能承担可靠传播。"
+      },
+      nu: {
+        name: "节点不确定",
+        shortName: "不确定节点",
+        symbol: "S̃",
+        graphLabel: "节点传出能力未知",
+        hint: "点击节点使其出边变为不确定",
+        effect(count) {
+          return count ? `${count} 个节点传出不可靠` : "未注入故障";
+        },
+        reason: "节点出边失去可靠性。"
+      }
+    };
+
+    let nodes = defaultNodes.map((node) => ({ ...node }));
+    let edges = buildGeneratedEdges(nodes, defaultPairs);
+
+    const configState = {
+      nodeCount: 7,
+      leaders: new Set([1, 2, 3])
+    };
+
+    const state = {
+      mode: "edge",
+      selected: new Set(["1-4", "3-5"]),
+      colored: new Set([1, 2, 3]),
+      usedEdges: new Set(),
+      forcedNode: null,
+      final: false,
+      phase: "ready",
+      connectionMode: false,
+      leaderMode: false,
+      connectionSource: null,
+      focusedNode: null,
+      direction: "single",
+      canvasFit: false,
+      nodeDrag: null,
+      suppressEdgeClick: false,
+      animationToken: 0
+    };
+
+    const resilienceMetricCache = {};
+    const topologyHistory = {
+      undo: [],
+      redo: [],
+      limit: 50
+    };
+    const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    const sorted = (set) => [...set].sort((a, b) => a - b);
+    const formatSet = (values) => `{${sorted(new Set(values)).join(",")}}`;
+    const sameSet = (left, right) => left.size === right.size && [...left].every((value) => right.has(value));
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add("is-visible");
+      window.clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(() => {
+        toast.classList.remove("is-visible");
+      }, 2200);
+    }
+
+    const modeTabs = [...document.querySelectorAll(".mode-tab")];
+    const directionButtons = [...document.querySelectorAll("[data-direction]")];
+    const networkSvg = document.getElementById("networkSvg");
+    const edgeLayer = document.getElementById("edgeLayer");
+    const nodeLayer = document.getElementById("nodeLayer");
+    const graphHint = document.getElementById("graphHint");
+    const graphPhaseBadge = document.getElementById("graphPhaseBadge");
+    const scenarioTitle = document.getElementById("scenarioTitle");
+    const networkMeta = document.getElementById("networkMeta");
+    const directionSwitch = document.getElementById("directionSwitch");
+    const connectButton = document.getElementById("connectButton");
+    const leaderModeButton = document.getElementById("leaderModeButton");
+    const layoutMenu = document.getElementById("layoutMenu");
+    const autoLayoutButton = document.getElementById("autoLayoutButton");
+    const resetPositionsButton = document.getElementById("resetPositionsButton");
+    const fitCanvasButton = document.getElementById("fitCanvasButton");
+    const clearFaultsButton = document.getElementById("clearFaultsButton");
+    const exportPngButton = document.getElementById("exportPngButton");
+    const focusClearButton = document.getElementById("focusClearButton");
+    const focusNodeLabel = document.getElementById("focusNodeLabel");
+    const resetPlaybackButton = document.getElementById("resetPlaybackButton");
+    const replayButton = document.getElementById("replayButton");
+    const replayButtonText = document.getElementById("replayButtonText");
+    const toast = document.getElementById("toast");
+    const causeFaultText = document.getElementById("causeFaultText");
+    const causeFaultSet = document.getElementById("causeFaultSet");
+    const causeDerivedText = document.getElementById("causeDerivedText");
+    const causeCoverageText = document.getElementById("causeCoverageText");
+    const causeVerdictItem = document.getElementById("causeVerdictItem");
+    const causeVerdictText = document.getElementById("causeVerdictText");
+    const causeVerdictDetail = document.getElementById("causeVerdictDetail");
+    const verdictHero = document.getElementById("verdictHero");
+    const verdictChip = document.getElementById("verdictChip");
+    const statusTitle = document.getElementById("statusTitle");
+    const statusSubtitle = document.getElementById("statusSubtitle");
+    const rhoValue = document.getElementById("rhoValue");
+    const rhoSummary = document.getElementById("rhoSummary");
+    const resilienceScale = document.getElementById("resilienceScale");
+    const scaleCurrentValue = document.getElementById("scaleCurrentValue");
+    const scaleSafeZone = document.getElementById("scaleSafeZone");
+    const scaleThresholdMarker = document.getElementById("scaleThresholdMarker");
+    const scaleCurrentMarker = document.getElementById("scaleCurrentMarker");
+    const scaleTickZero = document.getElementById("scaleTickZero");
+    const scaleTickRho = document.getElementById("scaleTickRho");
+    const scaleTickBoundary = document.getElementById("scaleTickBoundary");
+    const scaleTickMax = document.getElementById("scaleTickMax");
+    const rhoRelation = document.getElementById("rhoRelation");
+    const faultSize = document.getElementById("faultSize");
+    const derivedCount = document.getElementById("derivedCount");
+    const criticalSize = document.getElementById("criticalSize");
+    const coverageText = document.getElementById("coverageText");
+    const coverageBar = document.getElementById("coverageBar");
+    const coverageTrack = coverageBar.closest(".coverage-track");
+    const faultSetLabel = document.getElementById("faultSetLabel");
+    const faultSetText = document.getElementById("faultSetText");
+    const derivedSetText = document.getElementById("derivedSetText");
+    const impactReason = document.getElementById("impactReason");
+    const topologyDialog = document.getElementById("topologyDialog");
+    const topologyDialogHeader = topologyDialog.querySelector(".dialog-header");
+    const editTopologyButton = document.getElementById("editTopologyButton");
+    const experimentLibraryButton = document.getElementById("experimentLibraryButton");
+    const experimentDialog = document.getElementById("experimentDialog");
+    const closeExperimentButton = document.getElementById("closeExperimentButton");
+    const closeExperimentFooterButton = document.getElementById("closeExperimentFooterButton");
+    const saveExperimentForm = document.getElementById("saveExperimentForm");
+    const experimentNameInput = document.getElementById("experimentNameInput");
+    const saveExperimentButton = document.getElementById("saveExperimentButton");
+    const saveExperimentAsButton = document.getElementById("saveExperimentAsButton");
+    const currentExperimentLabel = document.getElementById("currentExperimentLabel");
+    const refreshExperimentsButton = document.getElementById("refreshExperimentsButton");
+    const experimentList = document.getElementById("experimentList");
+    const experimentHistorySection = document.getElementById("experimentHistorySection");
+    const experimentHistoryTitle = document.getElementById("experimentHistoryTitle");
+    const experimentHistoryList = document.getElementById("experimentHistoryList");
+    const closeExperimentHistoryButton = document.getElementById("closeExperimentHistoryButton");
+    const exportBackupButton = document.getElementById("exportBackupButton");
+    const experimentLibraryStatus = document.getElementById("experimentLibraryStatus");
+    const closeTopologyButton = document.getElementById("closeTopologyButton");
+    const cancelTopologyButton = document.getElementById("cancelTopologyButton");
+    const nodeCountInput = document.getElementById("nodeCountInput");
+    const topologySummary = document.getElementById("topologySummary");
+    const leaderStatus = document.getElementById("leaderStatus");
+    const leaderPicker = document.getElementById("leaderPicker");
+    const edgeFromSelect = document.getElementById("edgeFromSelect");
+    const edgeToSelect = document.getElementById("edgeToSelect");
+    const addEdgeButton = document.getElementById("addEdgeButton");
+    const removeEdgeButton = document.getElementById("removeEdgeButton");
+    const clearEdgesButton = document.getElementById("clearEdgesButton");
+    const edgeBuilderStatus = document.getElementById("edgeBuilderStatus");
+    const applyTopologyButton = document.getElementById("applyTopologyButton");
+    const restoreSampleButton = document.getElementById("restoreSampleButton");
+    const adjacencyMatrixInput = document.getElementById("adjacencyMatrixInput");
+    const matrixFileInput = document.getElementById("matrixFileInput");
+    const importMatrixFileButton = document.getElementById("importMatrixFileButton");
+    const fillMatrixButton = document.getElementById("fillMatrixButton");
+    const applyMatrixButton = document.getElementById("applyMatrixButton");
+    const matrixStatus = document.getElementById("matrixStatus");
+    let toastTimer = null;
+    let topologyDialogDrag = null;
+    let experimentsCache = [];
+    let renamingExperimentId = null;
+    let deletingExperimentId = null;
+    let currentExperimentId = null;
+    let currentExperimentName = "";
+    let historyExperimentId = null;
+    let recoveryTimer = null;
+    const apiOrigin = window.location.protocol === "file:" ? "http://127.0.0.1:8000" : "";
+    const recoveryStorageKey = "network-resilience-lab.autorecovery.v1";
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function setExperimentStatus(message, isError = false) {
+      experimentLibraryStatus.textContent = message;
+      experimentLibraryStatus.classList.toggle("is-error", isError);
+    }
+
+    async function apiRequest(path, options = {}) {
+      const requestOptions = { ...options, headers: { ...(options.headers || {}) } };
+      if (requestOptions.body) requestOptions.headers["Content-Type"] = "application/json";
+      let response;
+      try {
+        response = await fetch(`${apiOrigin}${path}`, requestOptions);
+      } catch {
+        throw new Error("无法连接实验库后端，请先启动本地服务。");
+      }
+      if (!response.ok) {
+        let message = `请求失败（${response.status}）`;
+        try {
+          const payload = await response.json();
+          if (payload?.error) message = payload.error;
+        } catch {
+          // Keep the HTTP status message.
+        }
+        throw new Error(message);
+      }
+      if (response.status === 204) return null;
+      return response.json();
+    }
+
+    function createExperimentConfig() {
+      return {
+        version: 1,
+        topology: captureTopologySnapshot(),
+        mode: state.mode,
+        selected: [...state.selected],
+        direction: state.direction
+      };
+    }
+
+    function updateCurrentExperimentIndicator() {
+      currentExperimentLabel.textContent = currentExperimentId == null
+        ? "当前未关联已保存实验"
+        : `当前实验：${currentExperimentName}`;
+      saveExperimentButton.textContent = currentExperimentId == null ? "保存实验" : "更新实验";
+      saveExperimentAsButton.hidden = currentExperimentId == null;
+    }
+
+    function writeRecoverySnapshot() {
+      try {
+        localStorage.setItem(recoveryStorageKey, JSON.stringify({
+          version: 1,
+          saved_at: new Date().toISOString(),
+          current_experiment_id: currentExperimentId,
+          current_experiment_name: currentExperimentName,
+          config: createExperimentConfig()
+        }));
+      } catch {
+        // Local recovery is optional when browser storage is unavailable.
+      }
+    }
+
+    function scheduleAutoRecovery() {
+      window.clearTimeout(recoveryTimer);
+      recoveryTimer = window.setTimeout(writeRecoverySnapshot, 400);
+    }
+
+    function restoreAutoRecovery() {
+      let snapshot;
+      try {
+        const raw = localStorage.getItem(recoveryStorageKey);
+        if (!raw) return false;
+        snapshot = JSON.parse(raw);
+      } catch {
+        return false;
+      }
+      try {
+        applyExperimentConfig(snapshot.config);
+        currentExperimentId = Number.isInteger(snapshot.current_experiment_id)
+          ? snapshot.current_experiment_id
+          : null;
+        currentExperimentName = typeof snapshot.current_experiment_name === "string"
+          ? snapshot.current_experiment_name
+          : "";
+        updateCurrentExperimentIndicator();
+        if (currentExperimentName) experimentNameInput.value = currentExperimentName;
+        showToast("已恢复上次编辑状态");
+        return true;
+      } catch {
+        try {
+          localStorage.removeItem(recoveryStorageKey);
+        } catch {
+          // Ignore unavailable local storage.
+        }
+        return false;
+      }
+    }
+
+    function formatExperimentDate(value) {
+      const date = new Date(value);
+      return Number.isNaN(date.getTime())
+        ? "未知时间"
+        : date.toLocaleString("zh-CN", { hour12: false });
+    }
+
+    function renderExperimentList() {
+      if (!experimentsCache.length) {
+        experimentList.innerHTML = `
+          <p class="experiment-empty">还没有保存的实验。输入名称后点击“保存实验”。</p>
+        `;
+        return;
+      }
+      experimentList.innerHTML = experimentsCache.map((experiment) => {
+        const modeName = modeInfo[experiment.mode]?.name || "实验";
+        const updatedAt = formatExperimentDate(experiment.updated_at);
+        const renaming = renamingExperimentId === experiment.id;
+        const deleting = deletingExperimentId === experiment.id;
+        const isCurrent = currentExperimentId === experiment.id;
+        const nameContent = renaming
+          ? `<input class="experiment-name-input experiment-rename-input" type="text" maxlength="80" value="${escapeHtml(experiment.name)}" data-rename-input="${experiment.id}" aria-label="新的实验名称">`
+          : `<h4 class="experiment-item-name">${escapeHtml(experiment.name)}</h4>`;
+        const actions = renaming
+          ? `
+              <button class="btn btn-primary" type="button" data-experiment-action="save-rename" data-experiment-id="${experiment.id}">保存</button>
+              <button class="btn" type="button" data-experiment-action="cancel-rename" data-experiment-id="${experiment.id}">取消</button>
+            `
+          : deleting
+            ? `
+              <button class="btn experiment-delete-confirm" type="button" data-experiment-action="confirm-delete" data-experiment-id="${experiment.id}">确认删除</button>
+              <button class="btn" type="button" data-experiment-action="cancel-delete" data-experiment-id="${experiment.id}">取消</button>
+            `
+          : `
+              <button class="btn btn-primary" type="button" data-experiment-action="open" data-experiment-id="${experiment.id}">打开</button>
+              <button class="btn" type="button" data-experiment-action="history" data-experiment-id="${experiment.id}">历史</button>
+              <button class="btn" type="button" data-experiment-action="rename" data-experiment-id="${experiment.id}">重命名</button>
+              <button class="btn" type="button" data-experiment-action="delete" data-experiment-id="${experiment.id}">删除</button>
+            `;
+        return `
+          <article class="experiment-item${isCurrent ? " is-current" : ""}">
+            <div>
+              ${nameContent}
+              <p class="experiment-item-meta">
+                ${experiment.node_count} 节点 · ${experiment.edge_count} 条边 · ${escapeHtml(modeName)}
+                <br>${escapeHtml(updatedAt)}
+              </p>
+            </div>
+            <div class="experiment-item-actions">
+              ${actions}
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    async function loadExperimentList() {
+      refreshExperimentsButton.disabled = true;
+      setExperimentStatus("正在读取实验列表…");
+      try {
+        experimentsCache = await apiRequest("/api/experiments");
+        if (!experimentsCache.some((item) => item.id === renamingExperimentId)) {
+          renamingExperimentId = null;
+        }
+        if (!experimentsCache.some((item) => item.id === deletingExperimentId)) {
+          deletingExperimentId = null;
+        }
+        renderExperimentList();
+        setExperimentStatus(`已读取 ${experimentsCache.length} 个实验。`);
+      } catch (error) {
+        experimentsCache = [];
+        experimentList.innerHTML = `<p class="experiment-empty">无法读取实验列表。</p>`;
+        setExperimentStatus(error.message, true);
+      } finally {
+        refreshExperimentsButton.disabled = false;
+      }
+    }
+
+    async function saveCurrentExperiment(event, saveAsNew = false) {
+      event?.preventDefault();
+      const name = experimentNameInput.value.trim();
+      if (!name) {
+        setExperimentStatus("请先输入实验名称。", true);
+        experimentNameInput.focus();
+        return;
+      }
+      const updateExisting = currentExperimentId != null && !saveAsNew;
+      saveExperimentButton.disabled = true;
+      saveExperimentAsButton.disabled = true;
+      try {
+        const body = JSON.stringify({ name, config: createExperimentConfig() });
+        const saved = await apiRequest(
+          updateExisting ? `/api/experiments/${currentExperimentId}` : "/api/experiments",
+          {
+            method: updateExisting ? "PUT" : "POST",
+            body
+          }
+        );
+        currentExperimentId = saved.id;
+        currentExperimentName = saved.name;
+        experimentNameInput.value = saved.name;
+        updateCurrentExperimentIndicator();
+        setExperimentStatus(updateExisting ? `已更新“${saved.name}”。` : `已保存“${saved.name}”。`);
+        await loadExperimentList();
+        if (historyExperimentId === saved.id) await loadExperimentHistory(saved.id);
+        showToast(updateExisting ? "实验已更新" : `实验“${saved.name}”已保存`);
+      } catch (error) {
+        setExperimentStatus(error.message, true);
+      } finally {
+        saveExperimentButton.disabled = false;
+        saveExperimentAsButton.disabled = false;
+      }
+    }
+
+    function applyExperimentConfig(config) {
+      const topology = config?.topology;
+      if (!topology || !Array.isArray(topology.nodes) || !Array.isArray(topology.edges)) {
+        throw new Error("实验数据缺少有效拓扑。");
+      }
+      const savedNodes = topology.nodes
+        .map((node) => ({
+          id: Number(node.id),
+          x: Number(node.x),
+          y: Number(node.y),
+          leader: Boolean(node.leader)
+        }))
+        .filter((node) => Number.isInteger(node.id) && Number.isFinite(node.x) && Number.isFinite(node.y));
+      const ids = new Set(savedNodes.map((node) => node.id));
+      if (
+        savedNodes.length < TOPOLOGY_MIN_NODES ||
+        savedNodes.length > TOPOLOGY_MAX_NODES ||
+        ids.size !== savedNodes.length
+      ) {
+        throw new Error("实验中的节点数据无效。");
+      }
+      const pairs = topology.edges
+        .filter((edge) => Array.isArray(edge) && edge.length >= 2)
+        .map((edge) => [Number(edge[0]), Number(edge[1])])
+        .filter(([from, to]) => ids.has(from) && ids.has(to) && from !== to);
+      const leaders = normalizeLeaderSet(
+        savedNodes.filter((node) => node.leader).map((node) => node.id),
+        savedNodes.length
+      );
+
+      cancelActiveNodeDrag();
+      nodes = savedNodes.map((node) => ({
+        ...node,
+        x: Math.round(Math.min(SVG_WIDTH - NODE_RADIUS - 12, Math.max(NODE_RADIUS + 12, node.x))),
+        y: Math.round(Math.min(SVG_HEIGHT - NODE_RADIUS - 12, Math.max(NODE_RADIUS + 12, node.y))),
+        leader: leaders.has(node.id)
+      }));
+      edges = buildGeneratedEdges(nodes, pairs);
+      configState.nodeCount = nodes.length;
+      configState.leaders = leaders;
+      nodeCountInput.value = String(nodes.length);
+      state.mode = modeInfo[config.mode] ? config.mode : "edge";
+      state.direction = config.direction === "both" ? "both" : "single";
+      state.connectionMode = false;
+      state.leaderMode = false;
+      state.focusedNode = null;
+      const universe = new Set(getFaultUniverse(state.mode));
+      state.selected = new Set(
+        (Array.isArray(config.selected) ? config.selected : [])
+          .filter((id) => universe.has(id) || universe.has(Number(id)))
+      );
+      topologyHistory.undo.length = 0;
+      topologyHistory.redo.length = 0;
+      setCanvasView({ x: 0, y: 0, width: SVG_WIDTH, height: SVG_HEIGHT });
+      state.canvasFit = false;
+      fitCanvasButton.textContent = "适应画布";
+      fitCanvasButton.setAttribute("aria-pressed", "false");
+      renderLeaderPicker();
+      syncModeTabs();
+      updateDirectionButtons();
+      syncAdjacencyMatrix();
+      prepareSimulation();
+    }
+
+    async function openSavedExperiment(experimentId) {
+      setExperimentStatus("正在打开实验…");
+      try {
+        const experiment = await apiRequest(`/api/experiments/${experimentId}`);
+        applyExperimentConfig(experiment.config);
+        currentExperimentId = experiment.id;
+        currentExperimentName = experiment.name;
+        experimentNameInput.value = experiment.name;
+        updateCurrentExperimentIndicator();
+        if (experimentDialog.open) experimentDialog.close();
+        showToast(`已打开实验“${experiment.name}”`);
+      } catch (error) {
+        setExperimentStatus(error.message, true);
+      }
+    }
+
+    function beginRenameExperiment(experimentId) {
+      const experiment = experimentsCache.find((item) => item.id === experimentId);
+      if (!experiment) return;
+      renamingExperimentId = experimentId;
+      deletingExperimentId = null;
+      renderExperimentList();
+      window.setTimeout(() => {
+        const input = experimentList.querySelector(`[data-rename-input="${experimentId}"]`);
+        input?.focus();
+        input?.select();
+      }, 0);
+    }
+
+    async function saveRenamedExperiment(experimentId) {
+      const experiment = experimentsCache.find((item) => item.id === experimentId);
+      const input = experimentList.querySelector(`[data-rename-input="${experimentId}"]`);
+      if (!experiment || !input) return;
+      const nextName = input.value.trim();
+      if (!nextName) {
+        setExperimentStatus("实验名称不能为空。", true);
+        input.focus();
+        return;
+      }
+      if (nextName === experiment.name) {
+        renamingExperimentId = null;
+        renderExperimentList();
+        return;
+      }
+      try {
+        await apiRequest(`/api/experiments/${experimentId}`, {
+          method: "PUT",
+          body: JSON.stringify({ name: nextName })
+        });
+        renamingExperimentId = null;
+        if (currentExperimentId === experimentId) {
+          currentExperimentName = nextName;
+          experimentNameInput.value = nextName;
+          updateCurrentExperimentIndicator();
+          scheduleAutoRecovery();
+        }
+        setExperimentStatus("实验已重命名。");
+        await loadExperimentList();
+      } catch (error) {
+        setExperimentStatus(error.message, true);
+      }
+    }
+
+    function beginDeleteExperiment(experimentId) {
+      const experiment = experimentsCache.find((item) => item.id === experimentId);
+      if (!experiment) return;
+      deletingExperimentId = experimentId;
+      renamingExperimentId = null;
+      renderExperimentList();
+      setExperimentStatus(`确认删除“${experiment.name}”吗？此操作无法撤销。`, true);
+    }
+
+    async function deleteSavedExperiment(experimentId) {
+      const experiment = experimentsCache.find((item) => item.id === experimentId);
+      if (!experiment) return;
+      try {
+        await apiRequest(`/api/experiments/${experimentId}`, { method: "DELETE" });
+        deletingExperimentId = null;
+        if (currentExperimentId === experimentId) {
+          currentExperimentId = null;
+          currentExperimentName = "";
+          experimentNameInput.value = "";
+          updateCurrentExperimentIndicator();
+        }
+        if (historyExperimentId === experimentId) closeExperimentHistory();
+        setExperimentStatus(`已删除“${experiment.name}”。`);
+        await loadExperimentList();
+        showToast("实验已删除");
+      } catch (error) {
+        setExperimentStatus(error.message, true);
+      }
+    }
+
+    function closeExperimentHistory() {
+      historyExperimentId = null;
+      experimentHistorySection.hidden = true;
+      experimentHistoryTitle.textContent = "";
+      experimentHistoryList.innerHTML = "";
+    }
+
+    function renderExperimentHistory(versions) {
+      if (!versions.length) {
+        experimentHistoryList.innerHTML = `<p class="experiment-empty">这个实验还没有历史版本。</p>`;
+        return;
+      }
+      experimentHistoryList.innerHTML = versions.map((version) => `
+        <article class="experiment-version">
+          <div>
+            <p class="experiment-version-title">版本 ${version.revision_number}</p>
+            <p class="experiment-item-meta">
+              ${version.node_count} 节点 · ${version.edge_count} 条边 · ${escapeHtml(modeInfo[version.mode]?.name || "实验")}
+              <br>${escapeHtml(formatExperimentDate(version.created_at))}
+            </p>
+          </div>
+          <button class="btn" type="button" data-version-action="restore" data-version-id="${version.id}" data-experiment-id="${version.experiment_id}">恢复此版本</button>
+        </article>
+      `).join("");
+    }
+
+    async function loadExperimentHistory(experimentId) {
+      const experiment = experimentsCache.find((item) => item.id === experimentId);
+      if (!experiment) return;
+      historyExperimentId = experimentId;
+      experimentHistorySection.hidden = false;
+      experimentHistoryTitle.textContent = experiment.name;
+      experimentHistoryList.innerHTML = `<p class="experiment-empty">正在读取历史版本…</p>`;
+      try {
+        const versions = await apiRequest(`/api/experiments/${experimentId}/versions`);
+        if (historyExperimentId !== experimentId) return;
+        renderExperimentHistory(versions);
+        experimentHistorySection.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      } catch (error) {
+        experimentHistoryList.innerHTML = `<p class="experiment-empty">历史版本读取失败。</p>`;
+        setExperimentStatus(error.message, true);
+      }
+    }
+
+    async function restoreExperimentVersion(experimentId, versionId) {
+      const experiment = experimentsCache.find((item) => item.id === experimentId);
+      if (!experiment) return;
+      setExperimentStatus("正在恢复历史版本…");
+      try {
+        const version = await apiRequest(`/api/experiments/${experimentId}/versions/${versionId}`);
+        const updated = await apiRequest(`/api/experiments/${experimentId}`, {
+          method: "PUT",
+          body: JSON.stringify({ name: experiment.name, config: version.config })
+        });
+        applyExperimentConfig(updated.config ?? version.config);
+        currentExperimentId = updated.id;
+        currentExperimentName = updated.name;
+        experimentNameInput.value = updated.name;
+        updateCurrentExperimentIndicator();
+        if (experimentDialog.open) experimentDialog.close();
+        showToast(`已恢复版本 ${version.revision_number}`);
+      } catch (error) {
+        setExperimentStatus(error.message, true);
+      }
+    }
+
+    async function exportBackup() {
+      exportBackupButton.disabled = true;
+      setExperimentStatus("正在生成完整备份…");
+      try {
+        const response = await fetch(`${apiOrigin}/api/backup`);
+        if (!response.ok) throw new Error(`备份失败（${response.status}）`);
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = objectUrl;
+        const stamp = new Date().toISOString().replaceAll(":", "-").slice(0, 19);
+        link.download = `network-resilience-backup-${stamp}.json`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+        setExperimentStatus("完整备份已导出。");
+        showToast("备份已导出");
+      } catch (error) {
+        setExperimentStatus(error.message, true);
+      } finally {
+        exportBackupButton.disabled = false;
+      }
+    }
+
+    function openExperimentLibrary() {
+      closeExperimentHistory();
+      updateCurrentExperimentIndicator();
+      experimentNameInput.value = currentExperimentName;
+      if (typeof experimentDialog.showModal === "function") {
+        experimentDialog.showModal();
+      } else {
+        experimentDialog.setAttribute("open", "");
+      }
+      loadExperimentList();
+    }
+
+    function clampNodeCount(value) {
+      const parsed = Number(value);
+      if (!Number.isFinite(parsed)) return 7;
+      return Math.min(TOPOLOGY_MAX_NODES, Math.max(TOPOLOGY_MIN_NODES, Math.round(parsed)));
+    }
+
+    function getAppliedLeaderSet() {
+      return new Set(nodes.filter((node) => node.leader).map((node) => node.id));
+    }
+
+    function captureTopologySnapshot() {
+      return {
+        nodes: nodes
+          .map((node) => ({ id: node.id, x: node.x, y: node.y, leader: Boolean(node.leader) }))
+          .sort((left, right) => left.id - right.id),
+        edges: edges
+          .map((edge) => [edge.from, edge.to])
+          .sort((left, right) => left[0] - right[0] || left[1] - right[1])
+      };
+    }
+
+    function sameTopology(left, right) {
+      return JSON.stringify(left) === JSON.stringify(right);
+    }
+
+    function updateFaultControls() {
+      clearFaultsButton.disabled = state.selected.size === 0;
+    }
+
+    function recordTopologyHistory(snapshot = captureTopologySnapshot()) {
+      const previous = topologyHistory.undo[topologyHistory.undo.length - 1];
+      if (previous && sameTopology(previous, snapshot)) return;
+      topologyHistory.undo.push(snapshot);
+      if (topologyHistory.undo.length > topologyHistory.limit) topologyHistory.undo.shift();
+      topologyHistory.redo.length = 0;
+      updateFaultControls();
+    }
+
+    function restoreTopologySnapshot(snapshot, message) {
+      nodes = snapshot.nodes.map((node) => ({ ...node }));
+      edges = buildGeneratedEdges(nodes, snapshot.edges);
+      configState.nodeCount = nodes.length;
+      configState.leaders = getAppliedLeaderSet();
+      nodeCountInput.value = String(nodes.length);
+      if (!nodes.some((node) => node.id === state.focusedNode)) state.focusedNode = null;
+      const universe = new Set(getFaultUniverse());
+      state.selected = new Set(
+        [...state.selected].filter((id) => universe.has(id) || universe.has(Number(id)))
+      );
+      Object.keys(resilienceMetricCache).forEach((key) => delete resilienceMetricCache[key]);
+      renderLeaderPicker();
+      edgeBuilderStatus.textContent = message;
+      prepareSimulation();
+      showToast(message);
+    }
+
+    function undoTopology() {
+      if (topologyHistory.undo.length === 0) return;
+      const current = captureTopologySnapshot();
+      const previous = topologyHistory.undo.pop();
+      topologyHistory.redo.push(current);
+      restoreTopologySnapshot(previous, "已撤销上一步拓扑编辑。");
+      updateFaultControls();
+    }
+
+    function redoTopology() {
+      if (topologyHistory.redo.length === 0) return;
+      const current = captureTopologySnapshot();
+      const next = topologyHistory.redo.pop();
+      topologyHistory.undo.push(current);
+      restoreTopologySnapshot(next, "已恢复下一步拓扑编辑。");
+      updateFaultControls();
+    }
+
+    function getFaultUniverse(mode = state.mode) {
+      return mode === "edge" || mode === "eu"
+        ? edges.map((edge) => edge.id)
+        : nodes.map((node) => node.id);
+    }
+
+    function getSelectedNodes() {
+      return state.mode === "node" || state.mode === "nu"
+        ? new Set([...state.selected].map(Number))
+        : new Set();
+    }
+
+    function getRemovedNodes() {
+      return state.mode === "node" ? getSelectedNodes() : new Set();
+    }
+
+    function getPresentNodes() {
+      const removed = getRemovedNodes();
+      if (state.mode === "node" && removed.size === nodes.length) return new Set();
+      return new Set(nodes.map((node) => node.id));
+    }
+
+    function getInitialColored() {
+      if (getPresentNodes().size === 0) return new Set();
+      const removed = getRemovedNodes();
+      return new Set(
+        nodes
+          .filter((node) => node.leader || removed.has(node.id))
+          .map((node) => node.id)
+      );
+    }
+
+    function getEdgeState(edge) {
+      const removed = getRemovedNodes();
+      if (state.mode === "node" && removed.has(edge.from)) return "blocked";
+      if (state.mode === "edge" && state.selected.has(edge.id)) return "removed";
+      if (state.mode === "eu" && state.selected.has(edge.id)) return "uncertain";
+      if (state.mode === "nu" && getSelectedNodes().has(edge.from)) return "uncertain";
+      return "available";
+    }
+
+    function canUseEdge(edge) {
+      return getEdgeState(edge) === "available";
+    }
+
+    function isCertainForcingEdge(edge, mode, selected, selectedNodes) {
+      if (mode === "edge" && selected.has(edge.id)) return false;
+      if (mode === "eu" && selected.has(edge.id)) return false;
+      if (mode === "nu" && selectedNodes.has(edge.from)) return false;
+      if (mode === "node" && selectedNodes.has(edge.from)) return false;
+      return true;
+    }
+
+    function computeSimulation(mode = state.mode, selected = state.selected) {
+      const allNodeIds = nodes.map((node) => node.id);
+      const selectedNodes = mode === "node" || mode === "nu"
+        ? new Set([...selected].map(Number))
+        : new Set();
+      const removedNodes = mode === "node" ? selectedNodes : new Set();
+      const present = mode === "node" && removedNodes.size === nodes.length
+        ? new Set()
+        : new Set(allNodeIds);
+      const colored = present.size === 0
+        ? new Set()
+        : new Set(
+          nodes
+            .filter((node) => node.leader || removedNodes.has(node.id))
+            .map((node) => node.id)
+        );
+      const initial = new Set(colored);
+      const physicalEdges = edges.filter((edge) => {
+        if (mode === "node" && selectedNodes.has(edge.from)) return false;
+        if (mode === "edge" && selected.has(edge.id)) return false;
+        return true;
+      });
+      const outgoing = new Map(allNodeIds.map((id) => [id, []]));
+      physicalEdges.forEach((edge) => outgoing.get(edge.from)?.push(edge));
+      const steps = [];
+      let changed = true;
+
+      while (changed) {
+        changed = false;
+        for (const node of nodes) {
+          if (!present.has(node.id) || !colored.has(node.id)) continue;
+          const whiteOutNeighbors = outgoing.get(node.id).filter((edge) => (
+            present.has(edge.to) &&
+            !colored.has(edge.to)
+          ));
+          if (
+            whiteOutNeighbors.length === 1 &&
+            isCertainForcingEdge(whiteOutNeighbors[0], mode, selected, selectedNodes)
+          ) {
+            const edge = whiteOutNeighbors[0];
+            colored.add(edge.to);
+            steps.push({ from: edge.from, to: edge.to, edgeId: edge.id });
+            changed = true;
+          }
+        }
+      }
+
+      const result = {
+        initial,
+        present,
+        steps,
+        final: colored,
+        totalFailure: present.size === 0,
+        success: present.size > 0 && [...present].every((id) => colored.has(id))
+      };
+
+      return result;
+    }
+
+    function* combinations(values, size, start = 0, prefix = []) {
+      if (prefix.length === size) {
+        yield prefix;
+        return;
+      }
+      const remaining = size - prefix.length;
+      for (let index = start; index <= values.length - remaining; index++) {
+        yield* combinations(values, size, index + 1, [...prefix, values[index]]);
+      }
+    }
+
+    function findFailingFaultSubset(mode, maxSize = 2) {
+      const universe = getFaultUniverse(mode);
+      for (let size = 1; size <= Math.min(maxSize, universe.length); size++) {
+        for (const subset of combinations(universe, size)) {
+          if (!computeSimulation(mode, new Set(subset)).success) return subset;
+        }
+      }
+      return [];
+    }
+
+    function computeResilienceMetric(mode) {
+      const universe = getFaultUniverse(mode);
+      for (let size = 1; size <= universe.length; size++) {
+        for (const subset of combinations(universe, size)) {
+          if (!computeSimulation(mode, new Set(subset)).success) return size - 1;
+        }
+      }
+      return universe.length;
+    }
+
+    function getResilienceMetrics() {
+      if (resilienceMetricCache.edge == null) {
+        const unifiedMetric = computeResilienceMetric("node");
+        Object.keys(modeInfo).forEach((mode) => {
+          resilienceMetricCache[mode] = unifiedMetric;
+        });
+      }
+      return resilienceMetricCache;
+    }
+
+    function getUnifiedResilience(metrics = getResilienceMetrics()) {
+      return Math.min(...Object.values(metrics));
+    }
+
+    function formatSelectedSet() {
+      if (state.selected.size === 0) return "∅";
+      if (state.mode === "edge" || state.mode === "eu") {
+        return `{${[...state.selected].map((id) => `(${id.replace("-", ",")})`).join(", ")}}`;
+      }
+      return formatSet([...state.selected].map(Number));
+    }
+
+    function getFaultCopy() {
+      const count = state.selected.size;
+      const info = modeInfo[state.mode];
+      const effect = info.effect(count);
+      const detail = count === 0
+        ? "网络保持完整拓扑"
+        : state.mode === "edge"
+          ? "原有传播通道被直接删除"
+          : state.mode === "node"
+            ? "被删节点停止输出；入边保留，出边中断"
+            : state.mode === "eu"
+              ? "这些边不再用于可靠传播"
+              : "相关出边失去确定性";
+      return { count, effect, detail };
+    }
+
+    function edgeMarker(edgeState, used) {
+      if (used) return "url(#arrowUsed)";
+      if (edgeState === "removed" || edgeState === "blocked") return "url(#arrowRemoved)";
+      if (edgeState === "uncertain") return "url(#arrowUncertain)";
+      if (edgeState === "unavailable") return "url(#arrowOff)";
+      return "url(#arrowNormal)";
+    }
+
+    function edgeAria(edge) {
+      const edgeState = getEdgeState(edge);
+      if (state.connectionMode) return `删除有向边 ${edge.label}`;
+      if (state.mode === "edge" || state.mode === "eu") {
+        return `有向边 ${edge.label}，${state.selected.has(edge.id) ? "当前已选为故障" : "当前正常"}，点击切换故障`;
+      }
+      if (state.mode === "node") {
+        if (edgeState === "blocked") return `有向边 ${edge.label}，起点节点已移除，当前不可输出`;
+        if (getRemovedNodes().has(edge.to)) {
+          return `有向边 ${edge.label}，进入已移除节点，边本身未删除`;
+        }
+      }
+      return `有向边 ${edge.label}，当前${edgeState === "available" ? "可靠" : "不可用"}`;
+    }
+
+    function renderFaultMark(edge, edgeState) {
+      if (edgeState !== "removed" && edgeState !== "uncertain") return "";
+      const markClass = edgeState === "uncertain" ? "fault-mark is-uncertain" : "fault-mark";
+      const symbol = edgeState === "uncertain" ? "?" : "×";
+      return `
+        <g class="${markClass}">
+          <text class="fault-mark-label" x="${edge.lx}" y="${edge.ly}">${symbol}</text>
+        </g>
+      `;
+    }
+
+    function renderEdgeLayer() {
+      const edgeInteractive = state.connectionMode || state.mode === "edge" || state.mode === "eu";
+      const focusedNode = state.focusedNode;
+      edgeLayer.innerHTML = edges.map((edge) => {
+        const faultState = getEdgeState(edge);
+        const edgeState = state.connectionMode ? "available" : faultState;
+        const used = !state.connectionMode && state.usedEdges.has(edge.id);
+        const classes = ["edge-line", `edge-${edgeState}`];
+        if (used) classes.push("edge-used");
+        const edgeClasses = ["edge-group"];
+        if (focusedNode != null && edge.from !== focusedNode && edge.to !== focusedNode) {
+          edgeClasses.push("is-dimmed");
+        }
+        const marker = edgeMarker(edgeState, used);
+        const tabindex = edgeInteractive ? 0 : -1;
+        return `
+          <g class="${edgeClasses.join(" ")}">
+            <path class="${classes.join(" ")}" d="${edge.path}" marker-end="${marker}"></path>
+            ${state.connectionMode ? "" : renderFaultMark(edge, faultState)}
+            <path
+              class="edge-hit"
+              d="${edge.path}"
+              data-edge-id="${edge.id}"
+              role="button"
+              tabindex="${tabindex}"
+              aria-label="${edgeAria(edge)}"
+            ></path>
+          </g>
+        `;
+      }).join("");
+    }
+
+    function renderGraph() {
+      const removedNodes = getRemovedNodes();
+      const uncertainNodes = state.mode === "nu" ? getSelectedNodes() : new Set();
+      const present = getPresentNodes();
+      const blocked = state.final ? [...present].filter((id) => !state.colored.has(id)) : [];
+      const nodeInteractive = state.connectionMode ||
+        state.leaderMode ||
+        state.mode === "node" ||
+        state.mode === "nu" ||
+        state.mode === "edge" ||
+        state.mode === "eu";
+      const focusedNode = state.focusedNode;
+      const focusNeighbors = new Set();
+      if (focusedNode != null) {
+        edges.forEach((edge) => {
+          if (edge.from === focusedNode) focusNeighbors.add(edge.to);
+          if (edge.to === focusedNode) focusNeighbors.add(edge.from);
+        });
+      }
+
+      renderEdgeLayer();
+
+      nodeLayer.innerHTML = nodes.map((node) => {
+        const isRemoved = removedNodes.has(node.id);
+        const isUncertain = uncertainNodes.has(node.id);
+        const isColored = state.colored.has(node.id) && !isRemoved;
+        const isBlocked = blocked.includes(node.id);
+        const classes = ["node-group"];
+        if (node.leader && !isRemoved) classes.push("is-leader");
+        if (isColored) classes.push("is-colored");
+        if (isBlocked) classes.push("is-blocked");
+        if (isUncertain) classes.push("is-uncertain");
+        if (isRemoved) classes.push("is-removed");
+        if (state.forcedNode === node.id) classes.push("is-newly-covered");
+        if (state.connectionSource === node.id) classes.push("is-connection-source");
+        if (state.nodeDrag?.id === node.id) classes.push("is-dragging");
+        if (focusedNode === node.id) {
+          classes.push("is-focus-anchor");
+        } else if (focusNeighbors.has(node.id)) {
+          classes.push("is-focus-neighbor");
+        } else if (focusedNode != null) {
+          classes.push("is-dimmed");
+        }
+
+        const roleLabel = node.leader ? "领导者" : "跟随者";
+        let status = roleLabel;
+        if (state.connectionSource === node.id) status = "连接起点";
+        const nodeAction = state.connectionMode
+          ? "点击选择连接起点或终点"
+          : state.leaderMode
+            ? "点击切换领导者"
+            : state.mode === "node" || state.mode === "nu"
+              ? "点击切换故障"
+              : "点击聚焦直接相连的节点";
+        const ariaStatus = isRemoved ? `${roleLabel}，已移除` : status;
+        const aria = `节点 ${node.id}，${ariaStatus}${nodeInteractive ? `，${nodeAction}` : "，可拖动调整位置"}`;
+        const selectableAttrs = nodeInteractive
+          ? `role="button" tabindex="0" aria-label="${aria}"`
+          : `aria-label="${aria}"`;
+        return `
+          <g class="${classes.join(" ")}" transform="translate(${node.x} ${node.y})" data-node-id="${node.id}" ${selectableAttrs}>
+            <circle class="node-pulse" r="${NODE_RADIUS + 7}"></circle>
+            <circle class="node-body" r="${NODE_RADIUS}"></circle>
+            <text class="node-id" y="1">${node.id}</text>
+          </g>
+        `;
+      }).join("");
+    }
+
+    function pointerToGraphPoint(event) {
+      const matrix = networkSvg.getScreenCTM();
+      if (!matrix) return null;
+      const point = networkSvg.createSVGPoint();
+      point.x = event.clientX;
+      point.y = event.clientY;
+      return point.matrixTransform(matrix.inverse());
+    }
+
+    function updateDirectionButtons() {
+      directionButtons.forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.direction === state.direction));
+      });
+    }
+
+    function setDirection(direction) {
+      state.direction = direction === "both" ? "both" : "single";
+      updateDirectionButtons();
+      if (state.connectionMode) {
+        edgeBuilderStatus.textContent = state.direction === "both"
+          ? "无向连接：依次选择两个节点，将展开为两条反向有向边。"
+          : "有向连接：依次选择起点和终点节点。";
+      }
+    }
+
+    function setConnectionMode(enabled) {
+      if (enabled) state.focusedNode = null;
+      if (enabled && state.leaderMode) {
+        state.leaderMode = false;
+        leaderModeButton.setAttribute("aria-pressed", "false");
+        leaderModeButton.lastChild.textContent = "设置领导者";
+      }
+      state.connectionMode = enabled;
+      state.connectionSource = null;
+      connectButton.setAttribute("aria-pressed", String(enabled));
+      connectButton.lastChild.textContent = enabled ? "退出连线" : "图上连线";
+      directionSwitch.classList.toggle("is-visible", enabled);
+      graphHint.textContent = enabled
+        ? "依次点击起点和终点；点击已有边可删除"
+        : `拖动节点；${modeInfo[state.mode].hint}`;
+      renderGraph();
+    }
+
+    function setLeaderMode(enabled) {
+      if (enabled) state.focusedNode = null;
+      if (enabled && state.connectionMode) setConnectionMode(false);
+      state.leaderMode = enabled;
+      state.connectionSource = null;
+      leaderModeButton.setAttribute("aria-pressed", String(enabled));
+      leaderModeButton.lastChild.textContent = enabled ? "退出领导者设置" : "设置领导者";
+      graphHint.textContent = enabled ? "点击节点切换领导者；至少保留 1 个" : "拖动节点调整位置";
+      renderGraph();
+    }
+
+    function toggleGraphLeader(nodeId) {
+      if (!state.leaderMode) return;
+      const node = nodes.find((item) => item.id === nodeId);
+      if (!node) return;
+      const leaderCount = getAppliedLeaderSet().size;
+      if (node.leader && leaderCount === 1) {
+        graphHint.textContent = "至少需要保留 1 个领导者";
+        return;
+      }
+      recordTopologyHistory();
+      node.leader = !node.leader;
+      configState.nodeCount = nodes.length;
+      configState.leaders = getAppliedLeaderSet();
+      Object.keys(resilienceMetricCache).forEach((key) => delete resilienceMetricCache[key]);
+      renderLeaderPicker();
+      prepareSimulation();
+      showToast(`节点 ${nodeId} 已${node.leader ? "设为" : "取消"}领导者`);
+    }
+
+    function toggleFocusNode(nodeId) {
+      state.focusedNode = state.focusedNode === nodeId ? null : nodeId;
+      updateInterface();
+    }
+
+    function syncSelectors() {
+      const currentFrom = Number(edgeFromSelect.value);
+      const currentTo = Number(edgeToSelect.value);
+      const options = nodes.map((node) => `<option value="${node.id}">节点 ${node.id}</option>`).join("");
+      edgeFromSelect.innerHTML = options;
+      edgeToSelect.innerHTML = options;
+      const from = nodes.some((node) => node.id === currentFrom) ? currentFrom : nodes[0].id;
+      edgeFromSelect.value = String(from);
+      const to = nodes.some((node) => node.id === currentTo && node.id !== from)
+        ? currentTo
+        : nodes.find((node) => node.id !== from)?.id || nodes[1].id;
+      edgeToSelect.value = String(to);
+    }
+
+    function createMatrixText(nodeList = nodes, edgeList = edges) {
+      const count = nodeList.length;
+      const matrix = Array.from({ length: count }, () => Array(count).fill(0));
+      edgeList.forEach((edge) => {
+        const row = edge.from - 1;
+        const column = edge.to - 1;
+        if (row >= 0 && row < count && column >= 0 && column < count) {
+          matrix[row][column] = 1;
+        }
+      });
+      return matrix.map((row) => row.join(" ")).join("\n");
+    }
+
+    function parseAdjacencyMatrix(text) {
+      const cleaned = String(text)
+        .replace(/^\uFEFF/, "")
+        .replace(/[\[\]【】]/g, " ")
+        .replace(/[，；]/g, ",")
+        .trim();
+      if (!cleaned) return { error: "矩阵为空，请粘贴矩阵或导入 CSV / TXT 文件。" };
+
+      const lines = cleaned
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean);
+      const rows = lines.map((line) => line.split(/[\s,;]+/).filter(Boolean));
+      const size = rows.length;
+      if (size < TOPOLOGY_MIN_NODES || size > TOPOLOGY_MAX_NODES) {
+        return {
+          error: `矩阵应为 ${TOPOLOGY_MIN_NODES}–${TOPOLOGY_MAX_NODES} 阶方阵，当前识别到 ${size} 行。`
+        };
+      }
+
+      const invalidRow = rows.findIndex((row) => row.length !== size);
+      if (invalidRow !== -1) {
+        return {
+          error: `第 ${invalidRow + 1} 行应有 ${size} 个元素，当前为 ${rows[invalidRow].length} 个。`
+        };
+      }
+
+      const nonBinary = rows.findIndex((row) => row.some((value) => value !== "0" && value !== "1"));
+      if (nonBinary !== -1) {
+        return { error: `第 ${nonBinary + 1} 行含有非 0/1 元素，请检查矩阵格式。` };
+      }
+
+      const diagonalIndex = rows.findIndex((row, index) => row[index] === "1");
+      if (diagonalIndex !== -1) {
+        return { error: `第 ${diagonalIndex + 1} 个对角元为 1；当前拓扑不支持自环，请改为 0。` };
+      }
+
+      const pairs = [];
+      rows.forEach((row, rowIndex) => {
+        row.forEach((value, columnIndex) => {
+          if (value === "1") pairs.push([rowIndex + 1, columnIndex + 1]);
+        });
+      });
+      return { size, pairs };
+    }
+
+    function setMatrixStatus(message, isError = false) {
+      matrixStatus.textContent = message;
+      adjacencyMatrixInput.classList.toggle("has-error", isError);
+    }
+
+    function syncAdjacencyMatrix() {
+      adjacencyMatrixInput.value = createMatrixText();
+      setMatrixStatus(`当前拓扑：${nodes.length} 阶矩阵，${edges.length} 条有向边。`);
+    }
+
+    function applyAdjacencyMatrix() {
+      const parsed = parseAdjacencyMatrix(adjacencyMatrixInput.value);
+      if (parsed.error) {
+        setMatrixStatus(parsed.error, true);
+        adjacencyMatrixInput.focus();
+        return false;
+      }
+
+      const before = captureTopologySnapshot();
+      const leaders = normalizeLeaderSet(configState.leaders, parsed.size);
+      const layout = buildTopologyLayout(parsed.size, leaders, parsed.pairs);
+      nodes = layout.nodes;
+      edges = layout.edges;
+      configState.nodeCount = parsed.size;
+      configState.leaders = leaders;
+      nodeCountInput.value = String(parsed.size);
+      setMatrixStatus(`矩阵有效：${parsed.size} 个节点，${parsed.pairs.length} 条有向边。`);
+      if (!sameTopology(before, captureTopologySnapshot())) recordTopologyHistory(before);
+      if (topologyDialog.open) topologyDialog.close();
+      recomputeAfterTopologyChange(
+        `已从邻接矩阵载入：${parsed.size} 个节点，${parsed.pairs.length} 条有向边。`,
+        false
+      );
+      return true;
+    }
+
+    function renderLeaderPicker() {
+      leaderPicker.innerHTML = Array.from({ length: configState.nodeCount }, (_, index) => {
+        const id = index + 1;
+        const selected = configState.leaders.has(id);
+        return `
+          <button
+            class="leader-node"
+            type="button"
+            data-leader-id="${id}"
+            aria-pressed="${selected}"
+            aria-label="节点 ${id}，${selected ? "当前是领导者" : "未选为领导者"}"
+          >${id}</button>
+        `;
+      }).join("");
+      leaderStatus.textContent = `已选择 ${configState.leaders.size} 个领导者 · 至少保留 1 个`;
+      syncSelectors();
+      updateTopologyDraftSummary();
+    }
+
+    function updateTopologyDraftSummary() {
+      const count = clampNodeCount(nodeCountInput.value);
+      const applied = nodes.length === count && sameSet(getAppliedLeaderSet(), configState.leaders);
+      topologySummary.textContent = applied
+        ? `当前：${nodes.length} 个节点，${edges.length} 条有向边`
+        : `待应用：${count} 个节点，${configState.leaders.size} 个领导者`;
+    }
+
+    function rebuildEdges(detectCrossings = true) {
+      edges = buildGeneratedEdges(
+        nodes,
+        edges.map((edge) => [edge.from, edge.to]),
+        detectCrossings
+      );
+    }
+
+    function autoLayoutTopology() {
+      recordTopologyHistory();
+      const layout = buildTopologyLayout(
+        nodes.length,
+        getAppliedLeaderSet(),
+        edges.map((edge) => [edge.from, edge.to])
+      );
+      nodes = layout.nodes;
+      edges = layout.edges;
+      layoutMenu.open = false;
+      Object.keys(resilienceMetricCache).forEach((key) => delete resilienceMetricCache[key]);
+      state.connectionSource = null;
+      edgeBuilderStatus.textContent = "已自动排布节点。";
+      prepareSimulation();
+      showToast("已自动排布节点");
+    }
+
+    function resetNodePositions() {
+      recordTopologyHistory();
+      const referenceNodes = nodes.length === defaultNodes.length
+        ? defaultNodes
+        : buildTopologyLayout(
+          nodes.length,
+          getAppliedLeaderSet(),
+          edges.map((edge) => [edge.from, edge.to])
+        ).nodes;
+      nodes = nodes.map((node) => {
+        const reference = referenceNodes.find((item) => item.id === node.id);
+        return reference ? { ...node, x: reference.x, y: reference.y } : node;
+      });
+      rebuildEdges();
+      layoutMenu.open = false;
+      recomputeAfterTopologyChange("节点位置已恢复。");
+    }
+
+    function setCanvasView(viewBox) {
+      networkSvg.setAttribute(
+        "viewBox",
+        `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`
+      );
+    }
+
+    function fitGraphCanvas() {
+      if (nodes.length === 0) return;
+      const horizontalRadius = NODE_RADIUS + 12;
+      const topRadius = NODE_RADIUS + 17;
+      const bottomRadius = NODE_RADIUS + 27;
+      const bounds = nodes.reduce((result, node) => ({
+        left: Math.min(result.left, node.x - horizontalRadius),
+        right: Math.max(result.right, node.x + horizontalRadius),
+        top: Math.min(result.top, node.y - topRadius),
+        bottom: Math.max(result.bottom, node.y + bottomRadius)
+      }), {
+        left: Infinity,
+        right: -Infinity,
+        top: Infinity,
+        bottom: -Infinity
+      });
+      const padding = 30;
+      const contentWidth = bounds.right - bounds.left + padding * 2;
+      const contentHeight = bounds.bottom - bounds.top + padding * 2;
+      const aspectRatio = SVG_WIDTH / SVG_HEIGHT;
+      const minimumWidth = 360;
+      const width = Math.max(
+        minimumWidth,
+        contentWidth,
+        contentHeight * aspectRatio
+      );
+      const height = width / aspectRatio;
+      const centerX = (bounds.left + bounds.right) / 2;
+      const centerY = (bounds.top + bounds.bottom) / 2;
+
+      setCanvasView({
+        x: Number((centerX - width / 2).toFixed(1)),
+        y: Number((centerY - height / 2).toFixed(1)),
+        width: Number(width.toFixed(1)),
+        height: Number(height.toFixed(1))
+      });
+      state.canvasFit = true;
+      fitCanvasButton.textContent = "完整画布";
+      fitCanvasButton.setAttribute("aria-pressed", "true");
+      layoutMenu.open = false;
+      showToast("已适应当前节点范围");
+    }
+
+    function resetGraphCanvas() {
+      setCanvasView({ x: 0, y: 0, width: SVG_WIDTH, height: SVG_HEIGHT });
+      state.canvasFit = false;
+      fitCanvasButton.textContent = "适应画布";
+      fitCanvasButton.setAttribute("aria-pressed", "false");
+      layoutMenu.open = false;
+      showToast("已显示完整画布");
+    }
+
+    function toggleGraphCanvasFit() {
+      if (state.canvasFit) {
+        resetGraphCanvas();
+      } else {
+        fitGraphCanvas();
+      }
+    }
+
+    function recomputeAfterTopologyChange(message, autoSelectFaults = true) {
+      Object.keys(resilienceMetricCache).forEach((key) => delete resilienceMetricCache[key]);
+      state.selected = autoSelectFaults
+        ? new Set(findFailingFaultSubset(state.mode, 2))
+        : new Set();
+      state.connectionSource = null;
+      renderLeaderPicker();
+      edgeBuilderStatus.textContent = message;
+      prepareSimulation();
+      showToast(message);
+    }
+
+    function addTopologyConnection(fromValue, toValue, bidirectional = state.direction === "both") {
+      const from = Number(fromValue);
+      const to = Number(toValue);
+      if (!Number.isInteger(from) || !Number.isInteger(to)) return false;
+      if (!nodes.some((node) => node.id === from) || !nodes.some((node) => node.id === to)) {
+        edgeBuilderStatus.textContent = "新节点尚未应用，请先应用节点数量。";
+        return false;
+      }
+      if (from === to) {
+        edgeBuilderStatus.textContent = "起点和终点必须不同。";
+        return false;
+      }
+
+      const requested = bidirectional ? [[from, to], [to, from]] : [[from, to]];
+      const missing = requested.filter(([source, target]) => (
+        !edges.some((edge) => edge.from === source && edge.to === target)
+      ));
+      if (missing.length === 0) {
+        edgeBuilderStatus.textContent = bidirectional
+          ? `无向连接 ${from} ↔ ${to} 已存在。`
+          : `有向连接 ${from} → ${to} 已存在。`;
+        return false;
+      }
+
+      recordTopologyHistory();
+      edges = buildGeneratedEdges(nodes, [...edges.map((edge) => [edge.from, edge.to]), ...missing]);
+      recomputeAfterTopologyChange(
+        bidirectional
+          ? `已添加无向连接 ${from} ↔ ${to}，展开为 2 条反向有向边。`
+          : `已添加有向连接 ${from} → ${to}。`
+      );
+      return true;
+    }
+
+    function removeTopologyConnection(fromValue, toValue, bidirectional = state.direction === "both") {
+      const from = Number(fromValue);
+      const to = Number(toValue);
+      const requested = new Set(bidirectional ? [`${from}-${to}`, `${to}-${from}`] : [`${from}-${to}`]);
+      if (!edges.some((edge) => requested.has(edge.id))) {
+        edgeBuilderStatus.textContent = bidirectional
+          ? `无向连接 ${from} ↔ ${to} 不存在。`
+          : `有向连接 ${from} → ${to} 不存在。`;
+        return;
+      }
+      recordTopologyHistory();
+      edges = buildGeneratedEdges(
+        nodes,
+        edges.filter((edge) => !requested.has(edge.id)).map((edge) => [edge.from, edge.to])
+      );
+      recomputeAfterTopologyChange(
+        bidirectional ? `已删除无向连接 ${from} ↔ ${to}。` : `已删除有向连接 ${from} → ${to}。`
+      );
+    }
+
+    function removeTopologyEdge(edgeId) {
+      const edge = edges.find((item) => item.id === edgeId);
+      if (!edge) return;
+      removeTopologyConnection(edge.from, edge.to, false);
+    }
+
+    function handleConnectionNode(nodeId) {
+      if (state.connectionSource == null) {
+        state.connectionSource = nodeId;
+        graphHint.textContent = `起点为节点 ${nodeId}，请选择终点节点`;
+        edgeBuilderStatus.textContent = `起点为节点 ${nodeId}，请选择终点节点。`;
+        renderGraph();
+        return;
+      }
+      if (state.connectionSource === nodeId) {
+        state.connectionSource = null;
+        graphHint.textContent = "已取消起点，请重新选择起点节点";
+        renderGraph();
+        return;
+      }
+      const source = state.connectionSource;
+      state.connectionSource = null;
+      addTopologyConnection(source, nodeId);
+    }
+
+    function applyTopologyConfiguration() {
+      const before = captureTopologySnapshot();
+      configState.nodeCount = clampNodeCount(nodeCountInput.value);
+      configState.leaders = normalizeLeaderSet(configState.leaders, configState.nodeCount);
+      nodeCountInput.value = String(configState.nodeCount);
+
+      if (nodes.length === configState.nodeCount) {
+        nodes = nodes.map((node) => ({ ...node, leader: configState.leaders.has(node.id) }));
+      } else {
+        const layout = buildTopologyLayout(
+          configState.nodeCount,
+          configState.leaders,
+          edges.map((edge) => [edge.from, edge.to])
+        );
+        nodes = layout.nodes;
+        edges = layout.edges;
+      }
+
+      if (!sameTopology(before, captureTopologySnapshot())) recordTopologyHistory(before);
+      renderLeaderPicker();
+      if (topologyDialog.open) topologyDialog.close();
+      setConnectionMode(false);
+      recomputeAfterTopologyChange(`拓扑已更新：${nodes.length} 个节点，${edges.length} 条有向边。`);
+    }
+
+    function restoreDefaultSample() {
+      recordTopologyHistory();
+      configState.nodeCount = 7;
+      configState.leaders = new Set([1, 2, 3]);
+      nodes = defaultNodes.map((node) => ({ ...node }));
+      edges = buildGeneratedEdges(nodes, defaultPairs);
+      nodeCountInput.value = "7";
+      state.mode = "edge";
+      state.selected = new Set(["1-4", "3-5"]);
+      state.connectionSource = null;
+      edgeBuilderStatus.textContent = "已恢复默认示例。";
+      Object.keys(resilienceMetricCache).forEach((key) => delete resilienceMetricCache[key]);
+      renderLeaderPicker();
+      syncModeTabs();
+      if (topologyDialog.open) topologyDialog.close();
+      setConnectionMode(false);
+      prepareSimulation();
+      showToast("已恢复默认示例");
+    }
+
+    function prepareSimulation() {
+      ++state.animationToken;
+      const data = computeSimulation();
+      state.final = false;
+      state.phase = "ready";
+      state.colored = new Set(data.initial);
+      state.usedEdges = new Set();
+      state.forcedNode = null;
+      updateInterface();
+    }
+
+    function updateProcessStage(activeStage, failed = false) {
+      const phaseText = activeStage === "ready"
+        ? "等待播放影响"
+        : activeStage === "inject"
+          ? "正在注入故障"
+          : activeStage === "propagate"
+            ? "零强制传播中"
+            : failed
+              ? "传播已中断"
+              : "覆盖判定完成";
+      graphPhaseBadge.className = "graph-phase-badge";
+      if (activeStage === "result") graphPhaseBadge.classList.add(failed ? "is-failed" : "is-result");
+      graphPhaseBadge.querySelector("span").textContent = phaseText;
+    }
+
+    function updateMetrics(finalData) {
+      const metrics = getResilienceMetrics();
+      const unifiedRho = getUnifiedResilience(metrics);
+      const currentRho = metrics[state.mode];
+      const currentSize = state.selected.size;
+      const boundary = unifiedRho + 1;
+
+      rhoValue.textContent = String(unifiedRho);
+      rhoSummary.textContent = unifiedRho > 0
+        ? `可承受任意 ≤${unifiedRho} 个故障`
+        : "任意单个故障都可能失去覆盖";
+
+      criticalSize.textContent = String(boundary);
+      const scaleMax = Math.max(boundary + 1, currentSize + 1, 3);
+      const toPercent = (value) => `${Math.min(100, Math.max(0, (value / scaleMax) * 100))}%`;
+      const confirmedFailure = state.final && !finalData.success;
+      const confirmedSuccess = state.final && finalData.success;
+      const critical = confirmedFailure;
+      scaleCurrentValue.textContent = confirmedFailure
+        ? `当前 ${currentSize} · 失效`
+        : confirmedSuccess
+          ? `当前 ${currentSize} · SSC`
+          : `当前 ${currentSize}`;
+      scaleCurrentValue.classList.toggle("is-critical", critical);
+      scaleCurrentValue.classList.toggle("is-success", confirmedSuccess);
+      scaleCurrentMarker.classList.toggle("is-critical", critical);
+      scaleCurrentMarker.classList.toggle("is-success", confirmedSuccess);
+      scaleSafeZone.style.width = toPercent(unifiedRho);
+      scaleCurrentMarker.style.left = toPercent(currentSize);
+      scaleCurrentMarker.style.transform = currentSize === 0 ? "translateX(0)" : "translateX(-50%)";
+      scaleThresholdMarker.style.left = toPercent(boundary);
+      scaleTickZero.style.left = "0%";
+      scaleTickRho.style.left = toPercent(unifiedRho);
+      scaleTickBoundary.style.left = toPercent(boundary);
+      scaleTickMax.style.left = "100%";
+      const rhoPercent = (unifiedRho / scaleMax) * 100;
+      const boundaryPercent = (boundary / scaleMax) * 100;
+      scaleTickRho.style.display = unifiedRho === 0 || boundaryPercent - rhoPercent < 14
+        ? "none"
+        : "flex";
+      scaleTickMax.style.display = 100 - boundaryPercent < 14 ? "none" : "flex";
+      scaleTickRho.querySelector("b").textContent = String(unifiedRho);
+      scaleTickBoundary.querySelector("b").textContent = String(boundary);
+      scaleTickMax.querySelector("b").textContent = String(scaleMax);
+      resilienceScale.setAttribute(
+        "aria-label",
+        `统一韧性 ${unifiedRho}，当前故障规模 ${currentSize}，临界规模 ${boundary}${
+          confirmedFailure ? "，当前结果失去 SSC" : confirmedSuccess ? "，当前结果保持 SSC" : ""
+        }`
+      );
+
+      if (state.phase === "ready") {
+        rhoRelation.innerHTML = `统一韧性 <strong>ρ = ${unifiedRho}</strong>；点击播放查看当前故障影响。`;
+      } else if (!state.final) {
+        rhoRelation.innerHTML = `正在计算当前故障影响；该类型 <strong>ρ = ${currentRho}</strong>。`;
+      } else if (currentSize === 0) {
+        rhoRelation.innerHTML = `当前无故障，统一韧性 <strong>ρ = ${unifiedRho}</strong>。`;
+      } else if (finalData.success && currentSize > unifiedRho) {
+        rhoRelation.innerHTML = `当前故障组合仍保持 SSC；统一边界 <strong>ρ = ${unifiedRho}</strong>。`;
+      } else if (finalData.totalFailure) {
+        rhoRelation.innerHTML = `全部节点均已移除，网络<strong>完全失效</strong>。`;
+      } else if (!finalData.success) {
+        rhoRelation.innerHTML = `故障规模 <strong>${currentSize}</strong> ≥ 临界值 <strong>${boundary}</strong>，SSC 被击穿。`;
+      } else {
+        rhoRelation.innerHTML = `当前故障在耐久范围内；该类型 <strong>ρ = ${currentRho}</strong>。`;
+      }
+    }
+
+    function updateInterface() {
+      const info = modeInfo[state.mode];
+      const finalData = computeSimulation();
+      const selectedCount = state.selected.size;
+      updateFaultControls();
+      const presentCount = finalData.present.size;
+      const currentCovered = state.final ? finalData.final.size : state.colored.size;
+      const coverage = presentCount > 0 ? Math.round((currentCovered / presentCount) * 100) : 0;
+      const blocked = state.final ? [...finalData.present].filter((id) => !finalData.final.has(id)) : [];
+      const faultCopy = getFaultCopy();
+      const isReady = state.phase === "ready";
+      if (state.focusedNode != null && !nodes.some((node) => node.id === state.focusedNode)) {
+        state.focusedNode = null;
+      }
+
+      scenarioTitle.textContent = selectedCount
+        ? `${info.name} · ${info.symbol}₁`
+        : `${info.name} · 无故障`;
+      networkMeta.textContent = `${nodes.length} 节点 · ${edges.length} 条边 · |Z| = ${getAppliedLeaderSet().size}`;
+      graphHint.textContent = state.leaderMode
+        ? "点击节点切换领导者；至少保留 1 个"
+        : state.connectionMode
+          ? "依次点击起点和终点；点击已有边可删除"
+          : state.focusedNode != null
+            ? `已聚焦节点 ${state.focusedNode}；点击其他节点切换`
+            : (state.mode === "edge" || state.mode === "eu")
+              ? "拖动节点；点击节点聚焦，点击边注入故障"
+              : `拖动节点；${info.hint}`;
+      focusClearButton.hidden = state.focusedNode == null;
+      if (state.focusedNode != null) focusNodeLabel.textContent = String(state.focusedNode);
+
+      causeFaultText.textContent = faultCopy.effect;
+      causeFaultSet.textContent = formatSelectedSet();
+      causeDerivedText.textContent = isReady
+        ? "D(G,Z) = 待计算"
+        : `D(G,Z) = ${formatSet(state.final ? finalData.final : state.colored)}`;
+      causeCoverageText.textContent = isReady ? "等待播放" : `覆盖 ${currentCovered}/${presentCount}`;
+      causeVerdictItem.className = "cause-item";
+      if (isReady) {
+        causeVerdictText.textContent = "等待播放";
+        causeVerdictDetail.textContent = "点击“播放影响”";
+      } else if (!state.final) {
+        causeVerdictText.textContent = "正在计算传播结果";
+        causeVerdictDetail.textContent = "等待结果";
+      } else if (finalData.totalFailure) {
+        causeVerdictItem.classList.add("is-failed");
+        causeVerdictText.textContent = "网络完全失效";
+        causeVerdictDetail.textContent = "全部节点已移除";
+      } else if (finalData.success) {
+        causeVerdictItem.classList.add("is-success");
+        causeVerdictText.textContent = "具有强结构能控性";
+        causeVerdictDetail.textContent = "全部节点已覆盖";
+      } else {
+        causeVerdictItem.classList.add("is-failed");
+        causeVerdictText.textContent = "非强结构能控性";
+        causeVerdictDetail.textContent = `${blocked.length} 个节点未覆盖`;
+      }
+
+      verdictHero.className = "verdict-hero";
+      if (isReady) {
+        verdictHero.classList.add("is-ready");
+        verdictChip.textContent = "READY";
+        statusTitle.textContent = "等待播放";
+        statusSubtitle.textContent = `已选择 ${selectedCount} 个故障。`;
+      } else if (!state.final) {
+        verdictHero.classList.add("is-running");
+        verdictChip.textContent = "SIMULATING";
+        statusTitle.textContent = "正在分析故障影响";
+        statusSubtitle.textContent = "正在检查节点覆盖。";
+      } else if (finalData.totalFailure) {
+        verdictHero.classList.add("is-failed");
+        verdictChip.textContent = "FAILED";
+        statusTitle.textContent = "网络完全失效";
+        statusSubtitle.textContent = "所有节点均已移除，不满足 SSC。";
+      } else if (finalData.success) {
+        verdictHero.classList.add("is-success");
+        verdictChip.textContent = "SSC ✓";
+        statusTitle.textContent = "具有强结构能控性";
+        statusSubtitle.textContent = "全部节点已覆盖。";
+      } else {
+        verdictHero.classList.add("is-failed");
+        verdictChip.textContent = "NON-SSC";
+        statusTitle.textContent = "非强结构能控性";
+        statusSubtitle.textContent = `${blocked.length} 个节点未覆盖。`;
+      }
+
+      faultSize.textContent = String(selectedCount);
+      derivedCount.textContent = isReady ? "—" : finalData.totalFailure ? "0/0" : `${currentCovered}/${presentCount}`;
+      coverageText.textContent = isReady ? "—" : `${coverage}%`;
+      coverageBar.style.width = isReady ? "0%" : `${coverage}%`;
+      coverageTrack.setAttribute("aria-valuenow", String(isReady ? 0 : coverage));
+      faultSetLabel.textContent = `故障集合 ${info.symbol}`;
+      faultSetText.textContent = formatSelectedSet();
+      derivedSetText.textContent = isReady ? "待计算" : formatSet(state.final ? finalData.final : state.colored);
+      impactReason.classList.toggle("is-success", state.final && finalData.success);
+      if (isReady) {
+        impactReason.innerHTML = "点击上方 <strong>播放影响</strong> 查看传播过程。";
+      } else if (!state.final) {
+        impactReason.innerHTML = `传播中：已覆盖 <strong>${currentCovered}/${presentCount}</strong>。`;
+      } else if (finalData.totalFailure) {
+        impactReason.innerHTML = "所有节点均已移除，剩余网络为空，<strong>不具有 SSC</strong>。";
+      } else if (finalData.success) {
+        impactReason.innerHTML = `全部 ${presentCount} 个节点已覆盖，网络<strong>具有 SSC</strong>。`;
+      } else {
+        impactReason.innerHTML = `未覆盖 <strong>${formatSet(blocked)}</strong>，网络<strong>不具有 SSC</strong>。`;
+      }
+
+      updateMetrics(finalData);
+      updateProcessStage(state.phase, state.final && !finalData.success);
+      const running = state.phase === "inject" || state.phase === "propagate";
+      resetPlaybackButton.disabled = state.phase === "ready";
+      replayButton.disabled = running;
+      replayButtonText.textContent = running
+        ? "播放中…"
+        : state.final
+          ? "重新播放"
+          : "播放影响";
+      renderGraph();
+      scheduleAutoRecovery();
+    }
+
+    async function startSimulation() {
+      const token = ++state.animationToken;
+      const data = computeSimulation();
+      const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      state.final = false;
+      state.phase = "inject";
+      state.colored = new Set(data.initial);
+      state.usedEdges = new Set();
+      state.forcedNode = null;
+      updateInterface();
+
+      if (reducedMotion) {
+        state.colored = new Set(data.final);
+        state.final = true;
+        state.phase = "result";
+        updateInterface();
+        return;
+      }
+
+      await delay(360);
+      if (token !== state.animationToken) return;
+      state.phase = "propagate";
+      updateInterface();
+
+      for (const step of data.steps) {
+        if (token !== state.animationToken) return;
+        state.usedEdges = new Set([step.edgeId]);
+        state.forcedNode = step.to;
+        state.colored.add(step.to);
+        updateInterface();
+        await delay(470);
+      }
+
+      if (token !== state.animationToken) return;
+      state.usedEdges = new Set();
+      state.forcedNode = null;
+      await delay(200);
+      if (token !== state.animationToken) return;
+      state.final = true;
+      state.phase = "result";
+      updateInterface();
+    }
+
+    function syncModeTabs() {
+      modeTabs.forEach((tab) => {
+        const active = tab.dataset.mode === state.mode;
+        tab.setAttribute("aria-selected", String(active));
+        tab.tabIndex = active ? 0 : -1;
+      });
+    }
+
+    function switchMode(mode) {
+      state.mode = mode;
+      state.selected = new Set();
+      if (state.connectionMode) setConnectionMode(false);
+      if (state.leaderMode) setLeaderMode(false);
+      state.focusedNode = null;
+      syncModeTabs();
+      prepareSimulation();
+    }
+
+    function toggleFaultSelection(type, id) {
+      const compatible = (
+        (type === "edge" && (state.mode === "edge" || state.mode === "eu")) ||
+        (type === "node" && (state.mode === "node" || state.mode === "nu"))
+      );
+      if (!compatible) return;
+      const normalized = type === "node" ? Number(id) : id;
+      if (state.selected.has(normalized)) {
+        state.selected.delete(normalized);
+      } else {
+        state.selected.add(normalized);
+      }
+      prepareSimulation();
+    }
+
+    function activateKeyboardNode(nodeId) {
+      if (state.connectionMode) {
+        handleConnectionNode(nodeId);
+      } else if (state.leaderMode) {
+        toggleGraphLeader(nodeId);
+      } else if (state.mode === "node" || state.mode === "nu") {
+        toggleFaultSelection("node", nodeId);
+      } else {
+        toggleFocusNode(nodeId);
+      }
+    }
+
+    function activateKeyboardEdge(edgeId) {
+      if (state.connectionMode) {
+        removeTopologyEdge(edgeId);
+      } else if (!state.leaderMode && (state.mode === "edge" || state.mode === "eu")) {
+        toggleFaultSelection("edge", edgeId);
+      }
+    }
+
+    async function exportNetworkPng() {
+      if (exportPngButton.disabled) return;
+      exportPngButton.disabled = true;
+
+      try {
+        const currentViewBox = networkSvg.viewBox.baseVal;
+        const exportScale = 2;
+        const exportWidth = Math.round(currentViewBox.width * exportScale);
+        const exportHeight = Math.round(currentViewBox.height * exportScale);
+        const clone = networkSvg.cloneNode(true);
+        const sourceElements = [networkSvg, ...networkSvg.querySelectorAll("*")];
+        const cloneElements = [clone, ...clone.querySelectorAll("*")];
+
+        sourceElements.forEach((source, index) => {
+          const target = cloneElements[index];
+          const computedStyle = getComputedStyle(source);
+          Array.from(computedStyle).forEach((property) => {
+            if (!property.startsWith("--")) {
+              target.style.setProperty(property, computedStyle.getPropertyValue(property));
+            }
+          });
+        });
+
+        clone.querySelectorAll("[tabindex]").forEach((element) => {
+          element.removeAttribute("tabindex");
+        });
+        clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        clone.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+        clone.setAttribute("width", String(exportWidth));
+        clone.setAttribute("height", String(exportHeight));
+
+        const background = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        background.setAttribute("x", String(currentViewBox.x));
+        background.setAttribute("y", String(currentViewBox.y));
+        background.setAttribute("width", String(currentViewBox.width));
+        background.setAttribute("height", String(currentViewBox.height));
+        background.setAttribute("fill", "#ffffff");
+        clone.insertBefore(background, clone.firstChild);
+
+        const svgSource = new XMLSerializer().serializeToString(clone);
+        const svgBlob = new Blob([svgSource], { type: "image/svg+xml;charset=utf-8" });
+        const svgUrl = URL.createObjectURL(svgBlob);
+        const image = new Image();
+
+        await new Promise((resolve, reject) => {
+          image.onload = resolve;
+          image.onerror = () => reject(new Error("SVG 渲染失败"));
+          image.src = svgUrl;
+        });
+
+        const canvas = document.createElement("canvas");
+        canvas.width = exportWidth;
+        canvas.height = exportHeight;
+        const context = canvas.getContext("2d");
+        context.fillStyle = "#ffffff";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(svgUrl);
+
+        const pngBlob = await new Promise((resolve) => canvas.toBlob(resolve, "image/png"));
+        if (!pngBlob) throw new Error("PNG 编码失败");
+        const pngUrl = URL.createObjectURL(pngBlob);
+        const link = document.createElement("a");
+        link.href = pngUrl;
+        link.download = `network-topology-${new Date().toISOString().slice(0, 10)}.png`;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.setTimeout(() => URL.revokeObjectURL(pngUrl), 1000);
+        showToast("PNG 已导出");
+      } catch (error) {
+        console.error(error);
+        showToast("PNG 导出失败");
+      } finally {
+        exportPngButton.disabled = false;
+      }
+    }
+
+    function getElasticFollowFactors(anchorId) {
+      const adjacency = new Map(nodes.map((node) => [node.id, new Set()]));
+      edges.forEach((edge) => {
+        adjacency.get(edge.from)?.add(edge.to);
+        adjacency.get(edge.to)?.add(edge.from);
+      });
+
+      const depths = new Map([[anchorId, 0]]);
+      const queue = [anchorId];
+      while (queue.length) {
+        const current = queue.shift();
+        const depth = depths.get(current);
+        if (depth >= 4) continue;
+        adjacency.get(current)?.forEach((neighbor) => {
+          if (depths.has(neighbor)) return;
+          depths.set(neighbor, depth + 1);
+          queue.push(neighbor);
+        });
+      }
+
+      const influenceByDepth = new Map([
+        [1, 0.24],
+        [2, 0.09],
+        [3, 0.035],
+        [4, 0.012]
+      ]);
+      return new Map(
+        [...depths.entries()]
+          .filter(([id]) => id !== anchorId)
+          .map(([id, depth]) => [id, influenceByDepth.get(depth) || 0])
+          .filter(([, influence]) => influence > 0)
+      );
+    }
+
+    function cancelActiveNodeDrag() {
+      const pointerId = state.nodeDrag?.pointerId;
+      if (pointerId != null && networkSvg.hasPointerCapture?.(pointerId)) {
+        networkSvg.releasePointerCapture(pointerId);
+      }
+      state.nodeDrag = null;
+      nodeLayer.querySelectorAll(".is-dragging").forEach((element) => {
+        element.classList.remove("is-dragging");
+      });
+    }
+
+    function resetTopologyDialogPosition() {
+      topologyDialog.style.inset = "0";
+      topologyDialog.style.left = "";
+      topologyDialog.style.top = "";
+      topologyDialog.style.margin = "auto";
+    }
+
+    function handleTopologyDialogDragStart(event) {
+      if (event.pointerType === "mouse" && event.button !== 0) return;
+      if (event.target.closest("button, input, select, textarea, summary, a")) return;
+      const rect = topologyDialog.getBoundingClientRect();
+      topologyDialogDrag = {
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        startY: event.clientY,
+        offsetX: event.clientX - rect.left,
+        offsetY: event.clientY - rect.top,
+        width: rect.width,
+        height: rect.height,
+        moved: false
+      };
+      topologyDialog.classList.add("is-dragging");
+      try {
+        topologyDialogHeader.setPointerCapture?.(event.pointerId);
+      } catch {
+        // Synthetic pointer events do not own a native pointer capture.
+      }
+      event.preventDefault();
+    }
+
+    function handleTopologyDialogDragMove(event) {
+      const drag = topologyDialogDrag;
+      if (!drag || drag.pointerId !== event.pointerId) return;
+      if (
+        !drag.moved &&
+        Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) > 3
+      ) {
+        drag.moved = true;
+      }
+      const edgeGap = 8;
+      const maxLeft = Math.max(edgeGap, window.innerWidth - drag.width - edgeGap);
+      const maxTop = Math.max(edgeGap, window.innerHeight - drag.height - edgeGap);
+      const left = Math.min(maxLeft, Math.max(edgeGap, event.clientX - drag.offsetX));
+      const top = Math.min(maxTop, Math.max(edgeGap, event.clientY - drag.offsetY));
+      topologyDialog.style.inset = "auto";
+      topologyDialog.style.left = `${Math.round(left)}px`;
+      topologyDialog.style.top = `${Math.round(top)}px`;
+      topologyDialog.style.margin = "0";
+      event.preventDefault();
+    }
+
+    function handleTopologyDialogDragEnd(event) {
+      if (!topologyDialogDrag || topologyDialogDrag.pointerId !== event.pointerId) return;
+      if (topologyDialogHeader.hasPointerCapture?.(event.pointerId)) {
+        try {
+          topologyDialogHeader.releasePointerCapture(event.pointerId);
+        } catch {
+          // The pointer may already have been released by the browser.
+        }
+      }
+      topologyDialogDrag = null;
+      topologyDialog.classList.remove("is-dragging");
+    }
+
+    function handlePointerDown(event) {
+      if (event.isPrimary === false) return;
+      if (event.pointerType === "mouse" && event.button !== 0) return;
+      const nodeElement = event.target.closest("[data-node-id]");
+      if (!nodeElement) return;
+      const id = Number(nodeElement.dataset.nodeId);
+      const node = nodes.find((item) => item.id === id);
+      const point = pointerToGraphPoint(event);
+      if (!node || !point) return;
+      state.nodeDrag = {
+        id,
+        pointerId: event.pointerId,
+        startClientX: event.clientX,
+        startClientY: event.clientY,
+        offsetX: node.x - point.x,
+        offsetY: node.y - point.y,
+        originX: node.x,
+        originY: node.y,
+        originalPositions: new Map(nodes.map((item) => [item.id, { x: item.x, y: item.y }])),
+        followFactors: getElasticFollowFactors(id),
+        beforeSnapshot: captureTopologySnapshot(),
+        moved: false
+      };
+      nodeElement.classList.add("is-dragging");
+      networkSvg.setPointerCapture?.(event.pointerId);
+    }
+
+    function handlePointerMove(event) {
+      const drag = state.nodeDrag;
+      if (!drag || drag.pointerId !== event.pointerId || state.connectionMode) return;
+      const distance = Math.hypot(event.clientX - drag.startClientX, event.clientY - drag.startClientY);
+      if (!drag.moved && distance < 4) return;
+      if (!drag.moved) recordTopologyHistory(drag.beforeSnapshot);
+      drag.moved = true;
+      event.preventDefault();
+      const point = pointerToGraphPoint(event);
+      if (!point) return;
+      const node = nodes.find((item) => item.id === drag.id);
+      if (!node) return;
+      const nextX = Math.round(Math.min(
+        SVG_WIDTH - NODE_RADIUS - 12,
+        Math.max(NODE_RADIUS + 12, point.x + drag.offsetX)
+      ));
+      const nextY = Math.round(Math.min(
+        SVG_HEIGHT - NODE_RADIUS - 12,
+        Math.max(NODE_RADIUS + 12, point.y + drag.offsetY)
+      ));
+      if (node.x === nextX && node.y === nextY) return;
+      node.x = nextX;
+      node.y = nextY;
+      const deltaX = nextX - drag.originX;
+      const deltaY = nextY - drag.originY;
+      drag.followFactors.forEach((influence, id) => {
+        const follower = nodes.find((item) => item.id === id);
+        const origin = drag.originalPositions.get(id);
+        if (!follower || !origin) return;
+        follower.x = Math.round(Math.min(
+          SVG_WIDTH - NODE_RADIUS - 12,
+          Math.max(NODE_RADIUS + 12, origin.x + deltaX * influence)
+        ));
+        follower.y = Math.round(Math.min(
+          SVG_HEIGHT - NODE_RADIUS - 12,
+          Math.max(NODE_RADIUS + 12, origin.y + deltaY * influence)
+        ));
+      });
+      rebuildEdges(false);
+      renderEdgeLayer();
+      [drag.id, ...drag.followFactors.keys()].forEach((id) => {
+        const movingNode = nodes.find((item) => item.id === id);
+        const movingElement = nodeLayer.querySelector(`[data-node-id="${id}"]`);
+        if (movingNode && movingElement) {
+          movingElement.setAttribute("transform", `translate(${movingNode.x} ${movingNode.y})`);
+        }
+      });
+    }
+
+    function handlePointerUp(event) {
+      const drag = state.nodeDrag;
+      if (!drag || drag.pointerId !== event.pointerId) return;
+      state.nodeDrag = null;
+      if (networkSvg.hasPointerCapture?.(event.pointerId)) {
+        networkSvg.releasePointerCapture(event.pointerId);
+      }
+      if (drag.moved) {
+        event.preventDefault();
+        state.suppressEdgeClick = true;
+        rebuildEdges();
+        renderEdgeLayer();
+        const draggedNodeElement = nodeLayer.querySelector(`[data-node-id="${drag.id}"]`);
+        draggedNodeElement?.classList.remove("is-dragging");
+        const node = nodes.find((item) => item.id === drag.id);
+        if (node && draggedNodeElement) {
+          draggedNodeElement.setAttribute("transform", `translate(${node.x} ${node.y})`);
+        }
+        window.setTimeout(() => {
+          state.suppressEdgeClick = false;
+        }, 30);
+        return;
+      }
+      if (event.type === "pointercancel") {
+        renderGraph();
+        return;
+      }
+      event.preventDefault();
+      if (state.connectionMode) {
+        handleConnectionNode(drag.id);
+      } else if (state.leaderMode) {
+        toggleGraphLeader(drag.id);
+      } else if (state.mode === "node" || state.mode === "nu") {
+        toggleFaultSelection("node", drag.id);
+      } else {
+        toggleFocusNode(drag.id);
+      }
+      renderGraph();
+    }
+
+    modeTabs.forEach((tab, index) => {
+      tab.addEventListener("click", () => switchMode(tab.dataset.mode));
+      tab.addEventListener("keydown", (event) => {
+        if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) return;
+        event.preventDefault();
+        const direction = event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : -1;
+        const next = (index + direction + modeTabs.length) % modeTabs.length;
+        modeTabs[next].focus();
+        switchMode(modeTabs[next].dataset.mode);
+      });
+    });
+
+    directionButtons.forEach((button) => {
+      button.addEventListener("click", () => setDirection(button.dataset.direction));
+    });
+
+    networkSvg.addEventListener("pointerdown", handlePointerDown);
+    networkSvg.addEventListener("pointermove", handlePointerMove);
+    networkSvg.addEventListener("pointerup", handlePointerUp);
+    networkSvg.addEventListener("pointercancel", handlePointerUp);
+    networkSvg.addEventListener("click", (event) => {
+      if (state.suppressEdgeClick) return;
+      const edgeTarget = event.target.closest("[data-edge-id]");
+      if (!edgeTarget) return;
+      event.preventDefault();
+      activateKeyboardEdge(edgeTarget.dataset.edgeId);
+    });
+    networkSvg.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      const edgeTarget = event.target.closest("[data-edge-id]");
+      const nodeTarget = event.target.closest("[data-node-id]");
+      if (edgeTarget) {
+        event.preventDefault();
+        activateKeyboardEdge(edgeTarget.dataset.edgeId);
+      } else if (nodeTarget) {
+        event.preventDefault();
+        activateKeyboardNode(Number(nodeTarget.dataset.nodeId));
+      }
+    });
+
+    connectButton.addEventListener("click", () => setConnectionMode(!state.connectionMode));
+    resetPlaybackButton.addEventListener("click", () => {
+      prepareSimulation();
+      showToast("已回到播放前");
+    });
+    replayButton.addEventListener("click", startSimulation);
+    experimentLibraryButton.addEventListener("click", openExperimentLibrary);
+    closeExperimentButton.addEventListener("click", () => experimentDialog.close());
+    closeExperimentFooterButton.addEventListener("click", () => experimentDialog.close());
+    refreshExperimentsButton.addEventListener("click", loadExperimentList);
+    saveExperimentForm.addEventListener("submit", saveCurrentExperiment);
+    saveExperimentAsButton.addEventListener("click", () => saveCurrentExperiment(null, true));
+    closeExperimentHistoryButton.addEventListener("click", closeExperimentHistory);
+    exportBackupButton.addEventListener("click", exportBackup);
+    experimentDialog.addEventListener("click", (event) => {
+      if (event.target === experimentDialog) experimentDialog.close();
+    });
+    experimentList.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-experiment-action]");
+      if (!button) return;
+      const experimentId = Number(button.dataset.experimentId);
+      if (!Number.isInteger(experimentId)) return;
+      if (button.dataset.experimentAction === "open") openSavedExperiment(experimentId);
+      else if (button.dataset.experimentAction === "rename") beginRenameExperiment(experimentId);
+      else if (button.dataset.experimentAction === "history") loadExperimentHistory(experimentId);
+      else if (button.dataset.experimentAction === "save-rename") saveRenamedExperiment(experimentId);
+      else if (button.dataset.experimentAction === "cancel-rename") {
+        renamingExperimentId = null;
+        renderExperimentList();
+      }
+      else if (button.dataset.experimentAction === "delete") beginDeleteExperiment(experimentId);
+      else if (button.dataset.experimentAction === "confirm-delete") deleteSavedExperiment(experimentId);
+      else if (button.dataset.experimentAction === "cancel-delete") {
+        deletingExperimentId = null;
+        renderExperimentList();
+        setExperimentStatus("已取消删除。");
+      }
+    });
+    experimentHistoryList.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-version-action='restore']");
+      if (!button) return;
+      restoreExperimentVersion(
+        Number(button.dataset.experimentId),
+        Number(button.dataset.versionId)
+      );
+    });
+
+    editTopologyButton.addEventListener("click", () => {
+      nodeCountInput.value = String(configState.nodeCount);
+      renderLeaderPicker();
+      syncAdjacencyMatrix();
+      edgeBuilderStatus.textContent = "也可在拓扑图中直接连线。";
+      cancelActiveNodeDrag();
+      resetTopologyDialogPosition();
+      if (typeof topologyDialog.showModal === "function") {
+        topologyDialog.showModal();
+      } else {
+        topologyDialog.setAttribute("open", "");
+      }
+    });
+    closeTopologyButton.addEventListener("click", () => topologyDialog.close());
+    cancelTopologyButton.addEventListener("click", () => topologyDialog.close());
+
+    topologyDialogHeader.addEventListener("pointerdown", handleTopologyDialogDragStart);
+    document.addEventListener("pointermove", handleTopologyDialogDragMove);
+    document.addEventListener("pointerup", handleTopologyDialogDragEnd);
+    document.addEventListener("pointercancel", handleTopologyDialogDragEnd);
+
+    nodeCountInput.addEventListener("input", () => {
+      configState.nodeCount = clampNodeCount(nodeCountInput.value);
+      configState.leaders = normalizeLeaderSet(configState.leaders, configState.nodeCount);
+      renderLeaderPicker();
+    });
+    nodeCountInput.addEventListener("change", () => {
+      nodeCountInput.value = String(clampNodeCount(nodeCountInput.value));
+      configState.nodeCount = clampNodeCount(nodeCountInput.value);
+      renderLeaderPicker();
+    });
+
+    leaderPicker.addEventListener("click", (event) => {
+      const button = event.target.closest("[data-leader-id]");
+      if (!button) return;
+      const id = Number(button.dataset.leaderId);
+      if (configState.leaders.has(id)) {
+        if (configState.leaders.size === 1) {
+          leaderStatus.textContent = "至少需要保留 1 个领导者";
+          return;
+        }
+        configState.leaders.delete(id);
+      } else {
+        configState.leaders.add(id);
+      }
+      renderLeaderPicker();
+    });
+
+    addEdgeButton.addEventListener("click", () => {
+      addTopologyConnection(edgeFromSelect.value, edgeToSelect.value);
+    });
+    removeEdgeButton.addEventListener("click", () => {
+      removeTopologyConnection(edgeFromSelect.value, edgeToSelect.value);
+    });
+    clearEdgesButton.addEventListener("click", () => {
+      if (edges.length === 0) {
+        edgeBuilderStatus.textContent = "当前没有可清空的边。";
+        return;
+      }
+      recordTopologyHistory();
+      edges = [];
+      recomputeAfterTopologyChange("已清空全部边，可通过图上连线重新搭建拓扑。");
+    });
+
+    adjacencyMatrixInput.addEventListener("input", () => {
+      setMatrixStatus("矩阵已修改，点击“应用矩阵”后生效。");
+    });
+    fillMatrixButton.addEventListener("click", () => {
+      syncAdjacencyMatrix();
+      showToast("已读取当前拓扑");
+    });
+    importMatrixFileButton.addEventListener("click", () => matrixFileInput.click());
+    matrixFileInput.addEventListener("change", async () => {
+      const [file] = matrixFileInput.files;
+      if (!file) return;
+      if (file.size > 256 * 1024) {
+        setMatrixStatus("文件过大，请选择不超过 256 KB 的矩阵文件。", true);
+        matrixFileInput.value = "";
+        return;
+      }
+      try {
+        adjacencyMatrixInput.value = await file.text();
+        setMatrixStatus(`已导入 ${file.name}，点击“应用矩阵”后生效。`);
+      } catch {
+        setMatrixStatus("文件读取失败，请确认文件为文本格式。", true);
+      } finally {
+        matrixFileInput.value = "";
+      }
+    });
+    applyMatrixButton.addEventListener("click", applyAdjacencyMatrix);
+    applyTopologyButton.addEventListener("click", applyTopologyConfiguration);
+    restoreSampleButton.addEventListener("click", restoreDefaultSample);
+    leaderModeButton.addEventListener("click", () => setLeaderMode(!state.leaderMode));
+    autoLayoutButton.addEventListener("click", autoLayoutTopology);
+    resetPositionsButton.addEventListener("click", resetNodePositions);
+    fitCanvasButton.addEventListener("click", toggleGraphCanvasFit);
+    clearFaultsButton.addEventListener("click", () => {
+      if (state.selected.size === 0) return;
+      state.selected = new Set();
+      prepareSimulation();
+      showToast("已清除所有故障");
+    });
+    exportPngButton.addEventListener("click", exportNetworkPng);
+    focusClearButton.addEventListener("click", () => {
+      state.focusedNode = null;
+      updateInterface();
+    });
+    document.addEventListener("keydown", (event) => {
+      const target = event.target;
+      const editingField = target instanceof Element &&
+        target.matches("input, textarea, select, [contenteditable='true']");
+      if (editingField) return;
+      if (event.key === "Escape" && state.focusedNode != null) {
+        state.focusedNode = null;
+        updateInterface();
+        return;
+      }
+      if (!(event.ctrlKey || event.metaKey) || event.altKey) return;
+      const key = event.key.toLowerCase();
+      if (key === "z" && event.shiftKey) {
+        event.preventDefault();
+        redoTopology();
+      } else if (key === "z") {
+        event.preventDefault();
+        undoTopology();
+      } else if (key === "y") {
+        event.preventDefault();
+        redoTopology();
+      }
+    });
+
+    syncModeTabs();
+    updateDirectionButtons();
+    renderLeaderPicker();
+    setConnectionMode(false);
+    updateFaultControls();
+    updateCurrentExperimentIndicator();
+    prepareSimulation();
+    restoreAutoRecovery();
+  </script>
+</body>
+</html>
