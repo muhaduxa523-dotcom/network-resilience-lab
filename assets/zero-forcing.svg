@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560" role="img" aria-labelledby="title desc">
+  <title id="title">零强制传播规则</title>
+  <desc id="desc">领导者初始染黑；黑节点若只有一个白色后继且边可靠，则将该后继染色；重复至收敛。</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10 2.5 5Z" fill="#172033"/></marker>
+  </defs>
+  <rect width="1200" height="560" fill="#fff"/>
+  <g font-family="Microsoft YaHei, sans-serif">
+    <text x="54" y="54" fill="#172033" font-size="30" font-weight="600">零强制传播规则</text>
+    <text x="54" y="84" fill="#647083" font-size="17">以一条有向链说明：初始领导者 Z = {1}，重复染色直至没有新节点。</text>
+
+    <g transform="translate(54 120)">
+      <rect width="358" height="196" rx="16" fill="#f8fafc" stroke="#dfe4ec"/>
+      <text x="22" y="31" fill="#47556a" font-size="15" font-weight="600">初始状态</text>
+      <g transform="translate(72 112)">
+        <circle r="27" fill="#172033"/><text y="6" fill="#fff" font-size="16" text-anchor="middle" font-weight="600">1</text>
+        <path d="M31 0h71" stroke="#172033" stroke-width="2.5" marker-end="url(#arrow)"/>
+        <circle cx="133" r="27" fill="#fff" stroke="#172033" stroke-width="2"/><text x="133" y="6" fill="#172033" font-size="16" text-anchor="middle" font-weight="600">2</text>
+        <path d="M164 0h54" stroke="#172033" stroke-width="2.5" marker-end="url(#arrow)"/>
+        <circle cx="249" r="27" fill="#fff" stroke="#172033" stroke-width="2"/><text x="249" y="6" fill="#172033" font-size="16" text-anchor="middle" font-weight="600">3</text>
+      </g>
+      <text x="22" y="173" fill="#647083" font-size="13">Z 中领导者首先进入黑色集合</text>
+    </g>
+
+    <g transform="translate(448 120)">
+      <rect width="322" height="196" rx="16" fill="#f8fafc" stroke="#dfe4ec"/>
+      <text x="22" y="31" fill="#47556a" font-size="15" font-weight="600">第一次强制</text>
+      <g transform="translate(52 112)">
+        <circle r="24" fill="#172033"/><text y="5" fill="#fff" font-size="15" text-anchor="middle" font-weight="600">1</text>
+        <path d="M28 0h45" stroke="#24705e" stroke-width="3.5" marker-end="url(#arrow)"/>
+        <circle cx="99" r="24" fill="#172033"/><text x="99" y="5" fill="#fff" font-size="15" text-anchor="middle" font-weight="600">2</text>
+        <path d="M127 0h45" stroke="#172033" stroke-width="2.5" marker-end="url(#arrow)"/>
+        <circle cx="198" r="24" fill="#fff" stroke="#172033" stroke-width="2"/><text x="198" y="5" fill="#172033" font-size="15" text-anchor="middle" font-weight="600">3</text>
+      </g>
+      <text x="22" y="173" fill="#24705e" font-size="13">节点 1 只有一个白色后继 2</text>
+    </g>
+
+    <g transform="translate(806 120)">
+      <rect width="340" height="196" rx="16" fill="#f1faf6" stroke="#cfe8dc"/>
+      <text x="22" y="31" fill="#24705e" font-size="15" font-weight="600">收敛状态</text>
+      <g transform="translate(58 112)">
+        <circle r="24" fill="#172033"/><text y="5" fill="#fff" font-size="15" text-anchor="middle" font-weight="600">1</text>
+        <path d="M28 0h45" stroke="#24705e" stroke-width="3.5" marker-end="url(#arrow)"/>
+        <circle cx="99" r="24" fill="#172033"/><text x="99" y="5" fill="#fff" font-size="15" text-anchor="middle" font-weight="600">2</text>
+        <path d="M127 0h45" stroke="#24705e" stroke-width="3.5" marker-end="url(#arrow)"/>
+        <circle cx="198" r="24" fill="#172033"/><text x="198" y="5" fill="#fff" font-size="15" text-anchor="middle" font-weight="600">3</text>
+      </g>
+      <text x="22" y="173" fill="#24705e" font-size="13">D(G,Z) = {1,2,3}，覆盖全部节点</text>
+    </g>
+
+    <g transform="translate(54 346)">
+      <rect width="1092" height="156" rx="16" fill="#fff" stroke="#dfe4ec"/>
+      <text x="26" y="35" fill="#172033" font-size="17" font-weight="600">染色条件</text>
+      <circle cx="76" cy="99" r="23" fill="#172033"/><text x="76" y="105" fill="#fff" font-size="15" text-anchor="middle" font-weight="600">u</text>
+      <path d="M102 99h139" stroke="#24705e" stroke-width="3.5" marker-end="url(#arrow)"/>
+      <circle cx="270" cy="99" r="23" fill="#fff" stroke="#172033" stroke-width="2"/><text x="270" y="105" fill="#172033" font-size="15" text-anchor="middle" font-weight="600">v</text>
+      <text x="332" y="92" fill="#172033" font-size="16" font-weight="600">u 只有一个白色后继 v</text>
+      <text x="332" y="116" fill="#647083" font-size="14">且边 (u,v) 可靠 → v 被染黑</text>
+      <line x1="750" y1="58" x2="750" y2="137" stroke="#e2e6ed"/>
+      <text x="786" y="86" fill="#b97a08" font-size="16" font-weight="600">不确定边不能承担染色</text>
+      <text x="786" y="113" fill="#647083" font-size="14">但仍计入白色后继数量</text>
+    </g>
+  </g>
+</svg>

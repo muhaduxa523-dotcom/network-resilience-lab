@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="440" viewBox="0 0 1200 440" role="img" aria-labelledby="title desc">
+  <title id="title">统一韧性指标与临界故障规模</title>
+  <desc id="desc">韧性值 rho 表示仍能保持强结构能控性的最大故障规模；rho 加一是首次可能失去强结构能控性的规模。</desc>
+  <rect width="1200" height="440" fill="#fff"/>
+  <g font-family="Microsoft YaHei, sans-serif">
+    <text x="54" y="54" fill="#172033" font-size="30" font-weight="600">统一韧性指标 ρ(G,Z)</text>
+    <text x="54" y="84" fill="#647083" font-size="17">边界回答：网络还能承受多大的故障集合，同时保持全部现存节点被覆盖。</text>
+
+    <rect x="54" y="118" width="1092" height="102" rx="16" fill="#f7f9fc" stroke="#dfe4ec"/>
+    <text x="80" y="160" fill="#47556a" font-size="15" font-weight="600">定义</text>
+    <text x="80" y="194" fill="#172033" font-size="24" font-weight="600">ρ(G,Z) = max { k : 任意 |R| ≤ k 的故障集合仍保持 SSC }</text>
+
+    <g transform="translate(74 282)">
+      <rect width="1052" height="18" rx="9" fill="#e9edf3"/>
+      <rect width="330" height="18" rx="9" fill="#dff2e9"/>
+      <rect x="330" width="200" height="18" fill="#f9dfdc"/>
+      <rect x="530" width="522" height="18" rx="9" fill="#e9edf3"/>
+      <line x1="330" y1="-20" x2="330" y2="66" stroke="#24705e" stroke-width="2"/>
+      <line x1="530" y1="-20" x2="530" y2="66" stroke="#cf4b43" stroke-width="2" stroke-dasharray="5 5"/>
+      <circle cx="170" cy="9" r="9" fill="#24705e"/>
+      <circle cx="430" cy="9" r="9" fill="#cf4b43"/>
+      <text x="0" y="91" fill="#647083" font-size="14">k = 0</text>
+      <text x="310" y="91" fill="#24705e" font-size="14" font-weight="600">ρ</text>
+      <text x="498" y="91" fill="#cf4b43" font-size="14" font-weight="600">ρ + 1</text>
+      <text x="1015" y="91" fill="#647083" font-size="14" text-anchor="end">故障规模 k</text>
+      <text x="0" y="-16" fill="#24705e" font-size="14" font-weight="600">耐久区：全部保持 SSC</text>
+      <text x="550" y="-16" fill="#cf4b43" font-size="14" font-weight="600">临界外：存在失去 SSC 的故障集合</text>
+    </g>
+
+    <g transform="translate(74 398)">
+      <text x="0" y="0" fill="#47556a" font-size="14">当前故障规模 k &lt; ρ + 1</text>
+      <text x="250" y="0" fill="#24705e" font-size="14" font-weight="600">仍可能保持 SSC</text>
+      <line x1="460" y1="-17" x2="460" y2="5" stroke="#d8dee8"/>
+      <text x="490" y="0" fill="#47556a" font-size="14">k ≥ ρ + 1</text>
+      <text x="625" y="0" fill="#cf4b43" font-size="14" font-weight="600">已越过统一边界，需要检查实际传播结果</text>
+    </g>
+  </g>
+</svg>
